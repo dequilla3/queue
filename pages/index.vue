@@ -1,6 +1,6 @@
 <template>
   <div class="login">
-    <p class="login__header-text">LOGIN</p>
+    <p class="login__header-text">PCIC Queueing System</p>
     <b-form class="login__form" @submit="userLogin">
       <b-form-input required class="mb-4" placeholder="Username"></b-form-input>
       <b-form-input required class="mb-4" placeholder="Password"></b-form-input>
