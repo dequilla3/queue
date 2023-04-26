@@ -18,7 +18,7 @@
         </div>
         <!-- queue section -->
         <div class="grid-item">
-          <div class="grid-container-3 ml-2">
+          <div class="grid-container-2 ml-2">
             <div class="grid-item">
               <div class="col_header mb-2 bg-info">Window</div>
               <div
@@ -39,7 +39,7 @@
                 {{ item.serving }}
               </div>
             </div>
-            <div class="grid-item">
+            <!-- <div class="grid-item">
               <div class="col_header mb-2 bg-info">Next</div>
               <div
                 v-for="(item, index) in windowList"
@@ -48,7 +48,7 @@
               >
                 {{ item.next }}
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
         <!-- end of queue section -->
@@ -115,12 +115,12 @@ export default {
 }
 .col_row {
   text-align: center;
-  padding: 18px;
   margin-right: 5px;
-  font-size: 65px;
+  font-size: 80px;
   font-weight: bold;
   color: white;
-  height: 21%;
+  height: 21vh;
+  padding-top: 5vh;
 }
 video {
   object-fit: fill;
