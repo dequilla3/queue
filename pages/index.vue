@@ -25,7 +25,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$x: 30%;
+$x: 35%;
 $y: 15%;
 .login {
   padding: 40px;
