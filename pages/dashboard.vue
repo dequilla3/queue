@@ -6,14 +6,14 @@
           <source src="gagss.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
+        <img :src="logo" class="watermark" />
       </div>
       <div class="dashboard__queue">
         <div class="dashboard__queue__logo">
-          <img src="../assets/img/logo.png" class="mr-2" />
+          <img :src="logo" class="mr-2" />
           <p class="dashboard__queue__logo__title">
             PHILIPPINE CROP <br />
-            INSURANCE CORPORATION <br />
-            REGION XI
+            INSURANCE CORPORATION REGION XI
           </p>
         </div>
         <table>
@@ -28,9 +28,11 @@
         </table>
       </div>
     </div>
-    <div class="bottom_section" @dblclick="ruuningTextEdit">
+    <div class="bottom_section" @dblclick="editRunningText">
       <marquee class="bottom_section__running_text">{{ runningText }}</marquee>
-      <div class="bottom_section__time"></div>
+      <div class="bottom_section__time">
+        {{ dateNow.toString().toUpperCase() }}
+      </div>
     </div>
 
     <b-modal
@@ -41,7 +43,12 @@
     >
       <form ref="form">
         <b-form-group label="Text" label-for="text-input">
-          <b-form-input id="text-input" v-model="tempRunningText" required></b-form-input>
+          <b-form-input
+            id="text-input"
+            v-model="tempRunningText"
+            required
+            @keyup.enter="handleOk"
+          ></b-form-input>
         </b-form-group>
       </form>
     </b-modal>
@@ -49,11 +56,15 @@
 </template>
 
 <script>
+import moment from "moment";
+import logo from "../assets/img/logo.png";
 export default {
   name: "dashboard",
   data() {
     return {
-      runningText: "<>Double Click to edit running text<> ",
+      logo: logo,
+      dateNow: "",
+      runningText: "<>Double Click to edit running text<>",
       tempRunningText: "",
       windowQueue: [
         {
@@ -86,8 +97,9 @@ export default {
   },
 
   methods: {
-    ruuningTextEdit() {
+    editRunningText() {
       this.$bvModal.show("edit_runningtext_modal");
+      this.playAudio();
     },
 
     handleOk() {
@@ -95,10 +107,26 @@ export default {
       this.runningText = this.tempRunningText;
       localStorage.runningText = this.runningText;
     },
+
+    playAudio() {
+      const audio = new Audio("attention.mp3");
+      audio.play();
+    },
   },
 
   mounted() {
-    this.runningText = localStorage.runningText;
+    this.interval = setInterval(() => {
+      this.dateNow = moment().format("LLLL");
+    }, 1000);
+
+    this.runningText =
+      localStorage.runningText == undefined
+        ? "<>Double Click to edit running text<>"
+        : localStorage.runningText;
+  },
+  computed: {},
+  beforeDestroy() {
+    clearInterval(this.interval);
   },
 };
 </script>
@@ -109,6 +137,18 @@ video {
   width: 100%;
   height: 100%;
   border: 0;
+  z-index: 0;
+}
+
+.watermark {
+  position: absolute;
+  left: 3%;
+  top: 3%;
+  color: white;
+  z-index: 1;
+  width: 60px;
+  height: 60px;
+  opacity: 0.5;
 }
 
 .dashboard {
@@ -135,10 +175,9 @@ video {
       color: white;
       background: yellowgreen;
       &__title {
-        -webkit-text-stroke: 0.6px black;
-        font-size: 1.8vh;
-        font-weight: 600;
-        text-shadow: 4px 4px 11px rgba(0, 0, 0, 0.35);
+        -webkit-text-stroke: 0.5px black;
+        font-size: 2vh;
+        font-weight: bold;
       }
     }
   }
@@ -196,11 +235,14 @@ td {
   &__time {
     background: white;
     height: 7vh;
-    text-align: left;
+    text-align: center;
     margin-top: 5px;
     margin-bottom: 5px;
     margin-right: 5px;
     width: 43vw;
+    color: rgb(24, 24, 24);
+    font-size: 3vh;
+    padding-top: 1vh;
   }
 }
 </style>
