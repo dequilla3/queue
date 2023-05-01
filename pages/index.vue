@@ -27,10 +27,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import url("@fontsource/poppins");
-* {
-  font-family: "Poppins";
-}
 
 $x: 35%;
 $y: 15%;

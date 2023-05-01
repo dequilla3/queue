@@ -132,6 +132,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+* {
+  font-family: Arial, Helvetica, sans-serif;
+}
 video {
   object-fit: fill;
   width: 100%;
@@ -240,7 +243,7 @@ td {
     margin-bottom: 5px;
     margin-right: 5px;
     width: 43vw;
-    color: rgb(24, 24, 24);
+    color: rgb(228, 0, 0);
     font-size: 3vh;
     padding-top: 1vh;
   }
