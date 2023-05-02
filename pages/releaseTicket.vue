@@ -1,59 +1,135 @@
 <template>
-  <div class="release_ticket">
-    <div class="logo"><img src="../assets/img/logo.png" /></div>
-    <div class="release_ticket__header">WELCOME</div>
-    <div class="release_ticket__sub_header">PLEASE SELECT TRANSACTION</div>
-    <hr />
-    <div class="window_container">
-      <div class="window_container__item">
-        <h6 class="window_container__item__header">WINDOW 1</h6>
-        <button class="window_container__item__button">
-          <h2>SUBMIT INSURANCE APPLICATION</h2>
-          <h6>(ISUMITE ANG APLIKASYON SA SEGURO)</h6>
-        </button>
-        <button class="window_container__item__button">
-          <h2>INQUIRY INSURANCE POLICY</h2>
-          <h6>(PAGTATANONG TUNGKOL SA PATAKARAN NG SEGURO)</h6>
-        </button>
+  <div>
+    <div class="release_ticket dontPrint">
+      <div class="logo"><img src="../assets/img/logo.png" /></div>
+      <div class="release_ticket__header">WELCOME</div>
+      <div class="release_ticket__sub_header">PLEASE SELECT TRANSACTION</div>
+      <hr />
+      <div class="window_container">
+        <div
+          v-for="(wind, index) in getWindowsTransaction"
+          :key="index"
+          class="window_container__item"
+        >
+          <h6 class="window_container__item__header">{{ wind.desc }}</h6>
+          <button
+            v-for="(trans, index) in wind.transactions"
+            :key="index"
+            class="window_container__item__button"
+            @click="onSelecTransaction(wind, trans)"
+          >
+            <h2>{{ trans.headText }}</h2>
+            <h6>({{ trans.subText }})</h6>
+          </button>
+        </div>
       </div>
-      <div class="window_container__item">
-        <h6 class="window_container__item__header">WINDOW 2</h6>
-        <button class="window_container__item__button">
-          <h2>SUBMIT CLAIMS APPLICATION</h2>
-          <h6>(ISUMITE ANG APLIKASYON NG INYONG CLAIM)</h6>
-        </button>
-        <button class="window_container__item__button">
-          <h2>INQUIRY CHECK STATUS</h2>
-          <h6>(PAGTATANONG KUNG ANU ANG KATAYUAN NG TSEKE)</h6>
-        </button>
-      </div>
-      <div class="window_container__item">
-        <h6 class="window_container__item__header">WINDOW 3</h6>
-        <button class="window_container__item__button">
-          <h2>PWD / SENIOR CITEZEN / PREGNANT</h2>
-          <h6>(MAY KAPANSANAN / MATATANDA / BUNTIS)</h6>
-        </button>
-      </div>
-      <div class="window_container__item">
-        <h6 class="window_container__item__header">WINDOW 4</h6>
-        <button class="window_container__item__button">
-          <h2>CLAIM INDEMNITY CHECK</h2>
-          <h6>(PAGKUHA NG BAYAD PINSALA)</h6>
-        </button>
-        <button class="window_container__item__button">
-          <h2>INQUIRY CHECK AVAILABILITY</h2>
-          <h6>(PAGTATANONG KUNG MAYROONG TSEKE)</h6>
-        </button>
-      </div>
+
+      <b-modal
+        no-close-on-backdrop
+        no-close-on-esc
+        hide-footer
+        id="gender_modal"
+        ref="modal"
+        title="Select Gender"
+      >
+        <b-overlay :show="isLoading" rounded="sm" opacity="0.5">
+          <b-button
+            @click="onSelectGender('MALE')"
+            variant="primary"
+            class="gender_btn mb-1"
+            >MALE</b-button
+          >
+          <b-button
+            @click="onSelectGender('FEMALE')"
+            variant="success"
+            class="gender_btn mb-1"
+            >FEMALE</b-button
+          >
+
+          <b-button @click="$bvModal.hide('gender_modal')" variant="danger w-100 mt-5"
+            ><font-awesome-icon icon="fa-solid fa-close" /> CANCEL</b-button
+          >
+        </b-overlay>
+      </b-modal>
     </div>
+    <!-- ticket  -->
+    <queueTicket class="print" />
   </div>
 </template>
 <script>
+import axios from "axios";
+import moment from "moment";
+import queueTicket from "../components/Report/queueTicket.vue";
+
 export default {
   name: "release-ticket",
+  components: {
+    queueTicket,
+  },
+  data() {
+    return {
+      isLoading: false,
+      wind: [],
+      trans: [],
+      gender: [],
+    };
+  },
+
+  methods: {
+    onSelecTransaction(wind, trans) {
+      this.wind = wind;
+      this.trans = trans;
+      this.$bvModal.show("gender_modal");
+    },
+
+    async onSelectGender(gender) {
+      this.gender = gender;
+      this.isLoading = true;
+      this.doPostTransaction();
+    },
+
+    async doPostTransaction() {
+      await axios({
+        method: "POST",
+        url: `${this.$axios.defaults.baseURL}/generateQueueNum`,
+        data: {
+          winNum: this.wind.winNum,
+          transType: this.trans.transCode,
+          date_queue: moment().format(),
+          gender: this.gender,
+        },
+      })
+        .then((res) => {
+          /*SET TICKET STATE*/
+          this.$store.commit("QueueTicket/SET_REPORTSTATE", {
+            curNum: res.data[0].queue_num,
+            windowCode: this.wind.windowCode,
+            windowDesc: this.wind.desc,
+          });
+          /*TRIGGER PRINT AFTEREACH*/
+          this.$nextTick(() => {
+            this.isLoading = false;
+            this.$bvModal.hide("gender_modal");
+
+            setTimeout(() => {
+              window.print();
+            }, 500);
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+  },
+
+  computed: {
+    getWindowsTransaction() {
+      return this.$store.state.QueueTicket.windowList;
+    },
+  },
 };
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 $margin: 15%;
 .logo {
   position: absolute;
@@ -113,6 +189,11 @@ $margin: 15%;
   }
 }
 
+.gender_btn {
+  font-size: 50px;
+  width: 100%;
+}
+
 @media screen and (max-height: 900px) {
   .window_container {
     &__item {
@@ -121,6 +202,20 @@ $margin: 15%;
         padding-bottom: 3.5vh;
       }
     }
+  }
+}
+
+.print {
+  display: none;
+}
+
+@media print {
+  .dontPrint {
+    display: none;
+  }
+
+  .print {
+    display: block;
   }
 }
 </style>
