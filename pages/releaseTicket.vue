@@ -46,7 +46,9 @@
             >FEMALE</b-button
           >
 
-          <b-button @click="$bvModal.hide('gender_modal')" variant="danger w-100 mt-5"
+          <b-button
+            @click="$bvModal.hide('gender_modal')"
+            variant="danger w-100 mt-5"
             ><font-awesome-icon icon="fa-solid fa-close" /> CANCEL</b-button
           >
         </b-overlay>
@@ -101,7 +103,7 @@ export default {
       })
         .then((res) => {
           /*SET TICKET STATE*/
-          this.$store.commit("QueueTicket/SET_REPORTSTATE", {
+          this.$store.commit("queueticket/SET_REPORTSTATE", {
             curNum: res.data[0].queue_num,
             windowCode: this.wind.windowCode,
             windowDesc: this.wind.desc,
@@ -124,7 +126,7 @@ export default {
 
   computed: {
     getWindowsTransaction() {
-      return this.$store.state.QueueTicket.windowList;
+      return this.$store.state.queueticket.windowList;
     },
   },
 };
@@ -150,7 +152,7 @@ $margin: 15%;
     text-align: center;
     padding: 10px;
     font-size: 25px;
-    letter-spacing: 1em;
+    letter-spacing: 0.5em;
   }
 
   &__sub_header {
@@ -182,6 +184,9 @@ $margin: 15%;
       padding-top: 5vh;
       padding-bottom: 5vh;
       margin-bottom: 10px;
+      box-shadow: 10px 10px 32px 2px rgba(0, 0, 0, 0.26);
+      -webkit-box-shadow: 10px 10px 32px 2px rgba(0, 0, 0, 0.26);
+      -moz-box-shadow: 10px 10px 32px 2px rgba(0, 0, 0, 0.26);
       &:active {
         opacity: 0.9;
       }

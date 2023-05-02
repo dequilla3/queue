@@ -27,7 +27,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
 $x: 35%;
 $y: 15%;
 

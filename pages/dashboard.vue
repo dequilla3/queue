@@ -17,14 +17,18 @@
           </p>
         </div>
         <table>
-          <tr>
-            <th>COUNTER</th>
-            <th>CLIENT NO.</th>
-          </tr>
-          <tr v-for="(item, index) in windowQueue" :key="index">
-            <td class="td--window">{{ item.windowDesc }}</td>
-            <td class="td--queue_number">{{ item.serving }}</td>
-          </tr>
+          <thead>
+            <tr>
+              <th>COUNTER</th>
+              <th>CLIENT NO.</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, index) in windowQueue" :key="index">
+              <td class="td--window">{{ item.windowDesc }}</td>
+              <td class="td--queue_number">{{ item.serving }}</td>
+            </tr>
+          </tbody>
         </table>
       </div>
     </div>
@@ -39,18 +43,17 @@
       id="edit_runningtext_modal"
       ref="modal"
       title="Edit running text"
+      no-close-on-backdrop
+      no-close-on-esc
       @ok="handleOk"
     >
-      <form ref="form">
-        <b-form-group label="Text" label-for="text-input">
-          <b-form-input
-            id="text-input"
-            v-model="tempRunningText"
-            required
-            @keyup.enter="handleOk"
-          ></b-form-input>
-        </b-form-group>
-      </form>
+      <b-form-textarea
+        id="textarea"
+        v-model="tempRunningText"
+        placeholder="Enter something..."
+        rows="3"
+        max-rows="6"
+      ></b-form-textarea>
     </b-modal>
   </div>
 </template>
@@ -99,13 +102,14 @@ export default {
   methods: {
     editRunningText() {
       this.$bvModal.show("edit_runningtext_modal");
-      this.playAudio();
     },
 
     handleOk() {
-      this.$bvModal.hide("edit_runningtext_modal");
       this.runningText = this.tempRunningText;
       localStorage.runningText = this.runningText;
+      this.$nextTick(() => {
+        this.$bvModal.hide("edit_runningtext_modal");
+      });
     },
 
     playAudio() {
@@ -115,6 +119,7 @@ export default {
   },
 
   mounted() {
+    console.log("test");
     this.interval = setInterval(() => {
       this.dateNow = moment().format("LLLL");
     }, 1000);
@@ -178,7 +183,7 @@ video {
       color: white;
       background: yellowgreen;
       &__title {
-        -webkit-text-stroke: 0.5px black;
+        -webkit-text-stroke: 0.3px black;
         font-size: 2vh;
         font-weight: bold;
       }
