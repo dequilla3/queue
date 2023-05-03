@@ -118,10 +118,16 @@ export default {
     },
   },
 
+  beforeCreate() {
+    if (!localStorage.role) {
+      this.$router.push({ path: "/" });
+    }
+  },
+
   mounted() {
-    console.log("test");
     this.interval = setInterval(() => {
       this.dateNow = moment().format("LLLL");
+      console.log("test");
     }, 1000);
 
     this.runningText =
@@ -130,9 +136,6 @@ export default {
         : localStorage.runningText;
   },
   computed: {},
-  beforeDestroy() {
-    clearInterval(this.interval);
-  },
 };
 </script>
 

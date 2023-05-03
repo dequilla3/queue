@@ -40,7 +40,7 @@ export default {
 
   computed: {
     reportState() {
-      return this.$store.state.QueueTicket.reportState;
+      return this.$store.state.queueticket.reportState;
     },
   },
 };

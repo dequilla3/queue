@@ -46,9 +46,7 @@
             >FEMALE</b-button
           >
 
-          <b-button
-            @click="$bvModal.hide('gender_modal')"
-            variant="danger w-100 mt-5"
+          <b-button @click="$bvModal.hide('gender_modal')" variant="danger w-100 mt-5"
             ><font-awesome-icon icon="fa-solid fa-close" /> CANCEL</b-button
           >
         </b-overlay>
@@ -115,13 +113,19 @@ export default {
 
             setTimeout(() => {
               window.print();
-            }, 500);
+            }, 100);
           });
         })
         .catch((err) => {
           console.log(err);
         });
     },
+  },
+
+  beforeCreate() {
+    if (!localStorage.role) {
+      this.$router.push({ path: "/" });
+    }
   },
 
   computed: {

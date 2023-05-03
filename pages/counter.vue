@@ -25,16 +25,17 @@
         RECALL</b-button
       >
       <b-button class="counter_container__actions__btn bg-default"
-        ><font-awesome-icon class="icn" icon="fa-solid fa-pause" />
-        HOLD</b-button
+        ><font-awesome-icon class="icn" icon="fa-solid fa-pause" /> HOLD</b-button
       >
 
-      <b-button
-        @click="onSelectHeldNum()"
-        class="counter_container__actions__btn bg-info"
-        ><font-awesome-icon class="icn" icon="fa-solid fa-arrow-down" /> INSERT
-        HELD NUMBER</b-button
+      <b-button @click="onSelectHeldNum()" class="counter_container__actions__btn bg-info"
+        ><font-awesome-icon class="icn" icon="fa-solid fa-arrow-down" /> INSERT HELD
+        NUMBER</b-button
       >
+
+      <b-button class="counter_container__actions__btn bg-default">
+        Queue Window 5
+      </b-button>
     </div>
 
     <b-modal
@@ -78,6 +79,12 @@ export default {
     onSelectHeldNum() {
       this.$bvModal.show("held_modal");
     },
+  },
+
+  beforeCreate() {
+    if (!localStorage.role) {
+      this.$router.push({ path: "/" });
+    }
   },
 
   computed: {
