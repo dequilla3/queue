@@ -16,12 +16,27 @@
         required
         class="mb-4"
         placeholder="Password"
+        type="password"
       ></b-form-input>
 
       <b-button type="submit" class="login__form__btn" variant="primary"
         >Login <font-awesome-icon icon="fa-solid fa-arrow-right"
       /></b-button>
     </b-form>
+
+    <b-alert
+      :show="alert.showAlert"
+      dismissible
+      :variant="alert.variant"
+      @dismissed="alert.showAlert = null"
+      id="alert-message"
+    >
+      <font-awesome-icon
+        :icon="alert.variant == 'success' ? 'check-circle' : 'exclamation'"
+        class="alert-icon mr-1"
+      />
+      {{ alert.message }}
+    </b-alert>
   </div>
 </template>
 
@@ -33,10 +48,27 @@ export default {
     return {
       uName: "",
       pw: "",
+
+      alert: {
+        showAlert: 0,
+        dismissSecs: 0,
+        variant: "success",
+        message: "",
+      },
     };
   },
 
   methods: {
+    showAlert(message, variant) {
+      this.alert = {
+        showAlert: 5,
+        dismissSecs: 2,
+
+        variant,
+        message,
+      };
+    },
+
     userLogin(e) {
       e.preventDefault();
 
@@ -46,7 +78,7 @@ export default {
         }.bind(this)
       );
 
-      if (userExists) {
+      if (userExists.length > 0) {
         let role = userExists[0].role;
         localStorage.role = role;
 
@@ -65,11 +97,15 @@ export default {
               break;
           }
         });
+      } else {
+        this.showAlert("User doesn't exists!", "danger");
       }
     },
   },
 
-  mounted() {},
+  mounted() {
+    localStorage.role = "";
+  },
 
   computed: {
     getUsers() {

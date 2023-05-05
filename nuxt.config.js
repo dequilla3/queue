@@ -1,6 +1,6 @@
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
-
+  ssr: false,
   head: {
     title: "PCIC Queue System",
     htmlAttrs: {
@@ -42,7 +42,15 @@ export default {
     extractCSS: process.env.NODE_ENV !== "development",
   },
 
+  server: {
+    port: 3300,
+  },
+
   axios: {
     baseUrl: "http://172.16.28.15:5100/queuing"
+  },
+  env: {
+    baseURL: "http://172.16.28.15:5100",
+
   },
 };

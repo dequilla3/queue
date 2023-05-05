@@ -122,11 +122,7 @@ export default {
     },
   },
 
-  beforeCreate() {
-    if (!localStorage.role) {
-      this.$router.push({ path: "/" });
-    }
-  },
+  beforeCreate() {},
 
   computed: {
     getWindowsTransaction() {

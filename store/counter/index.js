@@ -1,22 +1,75 @@
+import axios from 'axios';
+
 export default {
   state() {
     return {
-      heldNumber: [
+
+      queue: [],
+
+      windCodes: [
         {
-          windCode: "w1",
-          windDec: "WINDOW 1",
-          queueNum: 23,
-          dateQueue: "2022-05-02",
+          wNum: 'w1',
+          wCode: 'M',
+          desc: 'WINDOW 1'
         },
         {
-          windCode: "w2",
-          windDec: "WINDOW 2",
-          queueNum: 56,
-          dateQueue: "2022-05-02",
+          wNum: 'w2',
+          wCode: 'C',
+          desc: 'WINDOW 2'
         },
-      ],
+        {
+          wNum: 'w3',
+          wCode: 'P',
+          desc: 'WINDOW 3'
+        },
+        {
+          wNum: 'w4',
+          wCode: 'A',
+          desc: 'WINDOW 4',
+        },
+        {
+          wNum: 'w5',
+          wCode: 'T',
+          desc: 'WINDOW 5'
+        },
+      ]
     };
   },
 
-  mutations: {},
+  mutations: {
+    SET_QUEUE_LIST(state, data) {
+      state.queue = data;
+    }
+  },
+
+  actions: {
+    async getAllQueueList({ commit }, role) {
+      await axios({
+        method: "POST",
+        url: `${this.$axios.defaults.baseURL}/listQueuNum/${0}`,
+        data: {
+          winNum: role,
+          newStatus: "",
+          oldStatus: ""
+        },
+      }).then(res => {
+        commit("SET_QUEUE_LIST", res.data);
+      });
+    },
+
+    async postQueuesByStatus({ commit }, { role, newStatus, oldStatus, queueId }) {
+      await axios({
+        method: "POST",
+        url: `${this.$axios.defaults.baseURL}/listQueuNum/${queueId}`,
+        data: {
+          winNum: role,
+          newStatus: newStatus,
+          oldStatus: oldStatus,
+        },
+      })
+        .then((res) => {
+          commit("SET_QUEUE_LIST", res.data);
+        });
+    }
+  }
 };

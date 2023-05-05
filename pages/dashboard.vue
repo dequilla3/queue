@@ -61,10 +61,12 @@
 <script>
 import moment from "moment";
 import logo from "../assets/img/logo.png";
+import io from "socket.io-client";
 export default {
   name: "dashboard",
   data() {
     return {
+      server: "Connecting...",
       logo: logo,
       dateNow: "",
       runningText: "<>Double Click to edit running text<>",
@@ -118,16 +120,17 @@ export default {
     },
   },
 
-  beforeCreate() {
-    if (!localStorage.role) {
-      this.$router.push({ path: "/" });
-    }
+  beforeCreate() {},
+
+  created() {
+    let serverLink = `${process.env.baseURL}`;
+
+    const socket = io.connect(serverLink, {});
   },
 
   mounted() {
     this.interval = setInterval(() => {
       this.dateNow = moment().format("LLLL");
-      console.log("test");
     }, 1000);
 
     this.runningText =
