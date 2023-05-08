@@ -104,7 +104,7 @@ export default {
   },
 
   mounted() {
-    localStorage.role = "";
+    localStorage.clear();
   },
 
   computed: {

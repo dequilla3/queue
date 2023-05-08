@@ -26,7 +26,9 @@
           <tbody>
             <tr v-for="(item, index) in windowQueue" :key="index">
               <td class="td--window">{{ item.windowDesc }}</td>
-              <td class="td--queue_number">{{ item.serving }}</td>
+              <td class="td--queue_number">
+                {{ `${item.tCode}${String(item.qNum).padStart(3, "0")}` }}
+              </td>
             </tr>
           </tbody>
         </table>
@@ -75,27 +77,37 @@ export default {
         {
           windowId: 1,
           windowDesc: "WINDOW 1",
-          serving: "M001",
+          tCode: "M",
+          qNum: 0,
+          wCode: "w1",
         },
         {
           windowId: 2,
           windowDesc: "WINDOW 2",
-          serving: "C001",
+          tCode: "C",
+          qNum: 0,
+          wCode: "w2",
         },
         {
           windowId: 3,
           windowDesc: "WINDOW 3",
-          serving: "P004",
+          tCode: "P",
+          qNum: 0,
+          wCode: "w3",
         },
         {
           windowId: 4,
           windowDesc: "WINDOW 4",
-          serving: "A003",
+          tCode: "A",
+          qNum: 0,
+          wCode: "w4",
         },
         {
           windowId: 5,
           windowDesc: "WINDOW 5",
-          serving: "T004",
+          tCode: "T",
+          qNum: 0,
+          wCode: "w5",
         },
       ],
     };
@@ -118,17 +130,48 @@ export default {
       const audio = new Audio("attention.mp3");
       audio.play();
     },
+
+    async fetchQueueListPerWindow() {
+      this.windowQueue.forEach(
+        function (val) {
+          this.fetchQueueList(val);
+        }.bind(this)
+      );
+    },
+
+    async fetchQueueList(val) {
+      await this.$store.dispatch("counter/getAllQueueList", val.wCode).then((res) => {
+        let ongoing = res.data.filter(function (val) {
+          return val.status == "ONGOING";
+        });
+        val.qNum = ongoing[0] ? ongoing[0].queue_num : 0;
+      });
+    },
   },
 
-  beforeCreate() {},
+  beforeCreate() {
+    if (localStorage.role != "dashboard") this.$router.push({ path: "/" });
+    this.roleCheckInterval = setInterval(() => {
+      if (localStorage.role != "dashboard") this.$router.push({ path: "/" });
+    }, 5000);
+  },
+
+  beforeDestroy() {
+    clearInterval(this.interval);
+    clearInterval(this.intervalOngoing);
+    clearInterval(this.roleCheckInterval);
+  },
 
   created() {
-    let serverLink = `${process.env.baseURL}`;
-
-    const socket = io.connect(serverLink, {});
+    // let serverLink = `${process.env.baseURL}`;
+    // const socket = io.connect(serverLink, {});
   },
 
   mounted() {
+    this.intervalOngoing = setInterval(() => {
+      this.fetchQueueListPerWindow();
+    }, 1000);
+
     this.interval = setInterval(() => {
       this.dateNow = moment().format("LLLL");
     }, 1000);

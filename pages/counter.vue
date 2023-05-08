@@ -1,115 +1,142 @@
 <template>
-  <div class="counter_container">
-    <div class="counter_container__main">
-      <div class="counter_container__main__text">
-        <h2 class="mb-5">{{ getWindDesc }}</h2>
-        <p class="counter_container__main__text__num">{{ getQueueNum() }}</p>
-      </div>
-    </div>
-    <div class="counter_container__actions">
-      <div class="logo">
-        <img class="logo__img mr-2" src="../assets/img/logo.png" />
-        <p>
-          PHILIPPINE CROP <br />
-          INSURANCE CORPORATION <br />
-          REGION XI
-        </p>
-      </div>
-      <hr />
-      <b-overlay :show="showOverlayNext">
-        <b-button @click="onNext()" class="counter_container__actions__btn bg-success">
-          <font-awesome-icon class="icn" icon="fa-solid fa-arrow-right" />
-          NEXT
-        </b-button>
-      </b-overlay>
-
-      <b-button
-        :disabled="!audioDone"
-        @click="onRecall()"
-        class="counter_container__actions__btn bg-warning"
-      >
-        <font-awesome-icon class="icn" icon="fa-solid fa-rotate-right" />
-        RECALL
-      </b-button>
-
-      <b-button
-        :disabled="!audioDone"
-        @click="onHold()"
-        class="counter_container__actions__btn bg-default"
-      >
-        <font-awesome-icon class="icn" icon="fa-solid fa-pause" />
-        HOLD
-      </b-button>
-
-      <b-button @click="onSelectHeldNum()" class="counter_container__actions__btn bg-info"
-        ><font-awesome-icon class="icn" icon="fa-solid fa-arrow-down" />
-        INSERT HELD NUMBER
-      </b-button>
-
-      <b-button
-        v-show="getRole == 'w1'"
-        class="counter_container__actions__btn bg-default"
-      >
-        Queue Window 5
-      </b-button>
-    </div>
-
-    <b-modal
-      no-close-on-backdrop
-      no-close-on-esc
-      id="held_modal"
-      ref="modal"
-      title="Re-insert held number"
-      size="lg"
-    >
-      <b-input-group prepend="Search" class="mb-2">
-        <b-form-input
-          v-model="lblSearch"
-          @change="filteredHold()"
-          aria-label="Enter text here..."
-        ></b-form-input>
-      </b-input-group>
-      <b-table sticky-header hover :items="filteredHold()" :fields="tblHeldNumFields">
-        <template #cell(queue_num)="row">
-          <h2>{{ row.item.queue_num }}</h2>
-        </template>
-
-        <template #cell(date_queue)="row">
-          <h2>{{ new Date(row.item.date_queue).toDateString() }}</h2>
-        </template>
-
-        <template #cell(action)="row">
-          <b-button variant="success">INSERT</b-button>
-        </template>
-      </b-table>
-
-      <template #modal-footer>
-        <div class="w-100">
-          <b-button @click="$bvModal.hide('held_modal')" variant="danger"
-            >Cancel
-          </b-button>
+  <div>
+    <div class="dontPrint">
+      <div class="counter_container dontPrint">
+        <div class="counter_container__main">
+          <div class="counter_container__main__text">
+            <h2 class="mb-5">{{ getWindDesc }}</h2>
+            <p class="counter_container__main__text__num">{{ getQueueNum() }}</p>
+          </div>
         </div>
-      </template>
-    </b-modal>
+        <div class="counter_container__actions">
+          <div class="logo">
+            <img class="logo__img mr-2" src="../assets/img/logo.png" />
+            <p>
+              PHILIPPINE CROP <br />
+              INSURANCE CORPORATION <br />
+              REGION XI
+            </p>
+          </div>
+          <hr />
+          <b-overlay :show="showOverlayNext">
+            <b-button
+              :disabled="!audioDone"
+              @click="onNext()"
+              class="counter_container__actions__btn bg-success"
+            >
+              <font-awesome-icon class="icn" icon="fa-solid fa-arrow-right" />
+              NEXT
+            </b-button>
+          </b-overlay>
 
-    <b-alert
-      :show="alert.showAlert"
-      dismissible
-      :variant="alert.variant"
-      @dismissed="alert.showAlert = null"
-      id="alert-message"
-    >
-      <font-awesome-icon
-        :icon="alert.variant == 'success' ? 'check-circle' : 'exclamation'"
-        class="alert-icon mr-1"
-      />
-      {{ alert.message }}
-    </b-alert>
+          <b-button
+            :disabled="!audioDone"
+            @click="onRecall()"
+            class="counter_container__actions__btn bg-warning"
+          >
+            <font-awesome-icon class="icn" icon="fa-solid fa-rotate-right" />
+            RECALL
+          </b-button>
+
+          <b-button
+            :disabled="!audioDone"
+            @click="onHold()"
+            class="counter_container__actions__btn bg-default"
+          >
+            <font-awesome-icon class="icn" icon="fa-solid fa-pause" />
+            HOLD
+          </b-button>
+
+          <b-button
+            :disabled="!audioDone"
+            @click="onInsertHeldNum()"
+            class="counter_container__actions__btn bg-info"
+            ><font-awesome-icon class="icn" icon="fa-solid fa-arrow-down" />
+            INSERT HELD NUMBER
+          </b-button>
+
+          <b-overlay :show="showOverlayNext">
+            <b-button
+              :disabled="!audioDone"
+              @click="doPostQueue()"
+              v-show="getRole == 'w1'"
+              class="counter_container__actions__btn bg-default"
+            >
+              Queue Window 5
+            </b-button>
+          </b-overlay>
+        </div>
+
+        <b-modal
+          no-close-on-backdrop
+          no-close-on-esc
+          id="held_modal"
+          ref="modal"
+          title="Re-insert held number"
+          size="lg"
+        >
+          <b-input-group prepend="Search" class="mb-2">
+            <b-form-input
+              v-model="lblSearch"
+              @change="filteredHold()"
+              aria-label="Enter text here..."
+            ></b-form-input>
+          </b-input-group>
+          <b-table sticky-header hover :items="filteredHold()" :fields="tblHeldNumFields">
+            <template #cell(queue_num)="row">
+              <h2>{{ row.item.queue_num }}</h2>
+            </template>
+
+            <template #cell(date_queue)="row">
+              <h2>{{ new Date(row.item.date_queue).toDateString() }}</h2>
+            </template>
+
+            <template #cell(action)="row">
+              <b-button @click="onSelectHeldNum(row.item)" variant="success"
+                >INSERT</b-button
+              >
+            </template>
+          </b-table>
+
+          <template #modal-footer>
+            <div class="w-100">
+              <b-button @click="$bvModal.hide('held_modal')" variant="danger"
+                >Cancel
+              </b-button>
+            </div>
+          </template>
+        </b-modal>
+
+        <b-alert
+          :show="alert.showAlert"
+          dismissible
+          :variant="alert.variant"
+          @dismissed="alert.showAlert = null"
+          id="alert-message"
+        >
+          <font-awesome-icon
+            :icon="alert.variant == 'success' ? 'check-circle' : 'exclamation'"
+            class="alert-icon mr-1"
+          />
+          {{ alert.message }}
+        </b-alert>
+      </div>
+    </div>
+    <!-- ticket  -->
+    <queueTicket class="print" />
   </div>
 </template>
 <script>
+import queueTicket from "../components/Report/queueTicket.vue";
+import axios from "axios";
+import moment from "moment";
+
 const audio = new Audio("attention.mp3");
+
 export default {
+  components: {
+    queueTicket,
+  },
   data() {
     return {
       lblSearch: "",
@@ -118,8 +145,10 @@ export default {
       ongoing: [],
       done: [],
       hold: [],
+      selectedHeldQueueId: [],
 
       showOverlayNext: false,
+
       alert: {
         showAlert: 0,
         dismissSecs: 0,
@@ -174,9 +203,22 @@ export default {
       this.playAudio();
     },
 
-    onSelectHeldNum() {
+    onInsertHeldNum() {
       this.fetchQueueByStatus("HOLD");
       this.$bvModal.show("held_modal");
+    },
+
+    async onSelectHeldNum(item) {
+      /**
+       * PROCEDURE:
+       *  update ongoing to done then;
+       *  update selected held to ongoing
+       */
+      await this.postByStatus("DONE", "ONGOING").then(() => {
+        this.post("ONGOING", "HOLD", item.queue_id);
+        this.$bvModal.hide("held_modal");
+        this.showOverlayNext = false;
+      });
     },
 
     async onNext() {
@@ -221,11 +263,9 @@ export default {
 
     async postByStatus(newStatus, oldStatus) {
       return await this.fetchAllQueueList().then(() => {
-        /*FETCH Queue by old status and get the latest one and update to new status*/
         const queuedByOldStatus = this.getQueueByStatus(oldStatus);
         if (queuedByOldStatus.length > 0) {
           const latestQueuedByOldStatus = queuedByOldStatus[0];
-          //ACTUAL: post request here
           this.post(newStatus, oldStatus, latestQueuedByOldStatus.queue_id);
           this.showOverlayNext = false;
         } else {
@@ -247,20 +287,11 @@ export default {
           queueId: id,
         })
         .then(() => {
-          const listByStatus = this.getQueueByStatus(newStatus);
-
-          this.$nextTick(() => {
-            switch (newStatus) {
-              case "ONGOING":
-                // set new ongoing
-                this.ongoing = listByStatus.length > 0 ? listByStatus[0] : [];
-                this.playAudio();
-                break;
-              case "DONE":
-                break;
-            }
-            this.showOverlayNext = false;
-          });
+          if (newStatus == "ONGOING") {
+            this.playAudio();
+            this.ongoing = this.getOngoing[0];
+          }
+          this.showOverlayNext = false;
         })
         .catch((err) => {
           this.showAlert(err, "danger");
@@ -290,6 +321,7 @@ export default {
           switch (status) {
             case "ONGOING":
               this.ongoing = queueByStatus.length > 0 ? queueByStatus[0] : [];
+              console.log(this.ongoing);
               break;
             case "HOLD":
               this.hold = queueByStatus.length > 0 ? queueByStatus : [];
@@ -298,6 +330,40 @@ export default {
         })
         .catch((err) => {
           this.showAlert(err, "danger");
+        });
+    },
+
+    async doPostQueue() {
+      //TODO: need to refactor
+      this.showOverlayNext = true;
+      await axios({
+        method: "POST",
+        url: `${this.$axios.defaults.baseURL}/generateQueueNum`,
+        data: {
+          winNum: "w5",
+          transType: "t1",
+          date_queue: moment().format(),
+          gender: this.ongoing.gender,
+        },
+      })
+        .then((res) => {
+          /*SET TICKET STATE*/
+          this.$store.commit("queueticket/SET_REPORTSTATE", {
+            curNum: res.data[0].queue_num,
+            windowCode: "T",
+            windowDesc: "WINDOW 5",
+          });
+          /*TRIGGER PRINT AFTEREACH*/
+          this.$nextTick(() => {
+            this.showOverlayNext = false;
+            this.$bvModal.hide("held_modal");
+            setTimeout(() => {
+              window.print();
+            }, 500);
+          });
+        })
+        .catch((err) => {
+          console.log(err);
         });
     },
   },
@@ -311,6 +377,19 @@ export default {
       return localStorage.role == val.wNum;
     });
     if (codes.length < 1) this.$router.push({ path: "/" });
+
+    //repeat role check everyt 5secs
+    this.roleCheckInterval = setInterval(() => {
+      let codes = this.$store.state.counter.windCodes.filter(function (val) {
+        return localStorage.role == val.wNum;
+      });
+
+      if (codes.length < 1) this.$router.push({ path: "/" });
+    }, 5000);
+  },
+
+  beforeDestroy() {
+    clearInterval(this.roleCheckInterval);
   },
 
   created() {},
@@ -322,6 +401,12 @@ export default {
 
     getAllQueueList() {
       return this.$store.state.counter.queue;
+    },
+
+    getOngoing() {
+      return this.getAllQueueList.filter(function (val) {
+        return val.status == "ONGOING";
+      });
     },
 
     getWindCode() {

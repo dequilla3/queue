@@ -44,7 +44,7 @@ export default {
 
   actions: {
     async getAllQueueList({ commit }, role) {
-      await axios({
+      return await axios({
         method: "POST",
         url: `${this.$axios.defaults.baseURL}/listQueuNum/${0}`,
         data: {
@@ -54,7 +54,8 @@ export default {
         },
       }).then(res => {
         commit("SET_QUEUE_LIST", res.data);
-      });
+        return res;
+      }).catch(err => { console.log(err); });
     },
 
     async postQueuesByStatus({ commit }, { role, newStatus, oldStatus, queueId }) {

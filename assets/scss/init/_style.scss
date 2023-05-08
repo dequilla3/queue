@@ -6,3 +6,17 @@
   font-size: 14px;
   font-family: "Poppins";
 }
+
+.print {
+  display: none;
+}
+
+@media print {
+  .dontPrint {
+    display: none;
+  }
+
+  .print {
+    display: block;
+  }
+}

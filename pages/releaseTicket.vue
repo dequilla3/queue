@@ -122,7 +122,19 @@ export default {
     },
   },
 
-  beforeCreate() {},
+  beforeCreate() {
+    console.log(localStorage.role);
+
+    if (localStorage.role != "guard") this.$router.push({ path: "/" });
+    this.roleCheckInterval = setInterval(() => {
+      if (localStorage.role != "guard") this.$router.push({ path: "/" });
+      console.log(localStorage.role);
+    }, 5000);
+  },
+
+  beforeDestroy() {
+    clearInterval(this.roleCheckInterval);
+  },
 
   computed: {
     getWindowsTransaction() {
@@ -207,20 +219,6 @@ $margin: 15%;
         padding-bottom: 3.5vh;
       }
     }
-  }
-}
-
-.print {
-  display: none;
-}
-
-@media print {
-  .dontPrint {
-    display: none;
-  }
-
-  .print {
-    display: block;
   }
 }
 </style>
