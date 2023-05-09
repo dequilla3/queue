@@ -6,7 +6,9 @@
         <div class="counter_container__main">
           <div class="counter_container__main__text">
             <h2 class="mb-5">{{ getWindDesc }}</h2>
-            <p class="counter_container__main__text__num">{{ getQueueNum() }}</p>
+            <p class="counter_container__main__text__num">
+              {{ getQueueNum() }}
+            </p>
           </div>
         </div>
         <div class="counter_container__actions">
@@ -56,7 +58,7 @@
             INSERT HELD NUMBER
           </b-button>
 
-          <b-overlay :show="showOverlayNext">
+          <b-overlay :show="showOverlayNext && getRole == 'w1'">
             <b-button
               :disabled="!audioDone"
               @click="doPostQueue()"
@@ -83,7 +85,12 @@
               aria-label="Enter text here..."
             ></b-form-input>
           </b-input-group>
-          <b-table sticky-header hover :items="filteredHold()" :fields="tblHeldNumFields">
+          <b-table
+            sticky-header
+            hover
+            :items="filteredHold()"
+            :fields="tblHeldNumFields"
+          >
             <template #cell(queue_num)="row">
               <h2>{{ row.item.queue_num }}</h2>
             </template>
@@ -304,7 +311,10 @@ export default {
     },
 
     async fetchAllQueueList() {
-      return await this.$store.dispatch("counter/getAllQueueList", localStorage.role);
+      return await this.$store.dispatch(
+        "counter/getAllQueueList",
+        localStorage.role
+      );
     },
 
     getQueueNum() {

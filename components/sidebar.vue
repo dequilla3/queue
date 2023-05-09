@@ -14,7 +14,9 @@
         :title="item.title"
         v-if="item.show"
       >
-        <div><font-awesome-icon class="mr-1" :icon="['fa-solid', item.icon]" /></div>
+        <div>
+          <font-awesome-icon class="mr-1" :icon="['fa-solid', item.icon]" />
+        </div>
         <div>{{ item.moduleName }}</div>
       </li>
     </ul>
@@ -70,7 +72,12 @@ export default {
 
     onClickItem(item) {
       this.setActiveModule(item.code);
-      this.$router.push({ path: item.path });
+      if (item.code != "logout") {
+        this.$router.push({ path: item.path });
+        return;
+      }
+
+      this.showMsgBoxConfirmation();
     },
 
     setActiveModule(code) {
@@ -82,6 +89,27 @@ export default {
           localStorage.activePath = val.path;
         }
       });
+    },
+
+    showMsgBoxConfirmation() {
+      this.$bvModal
+        .msgBoxConfirm("Are you sure you want to Logout?", {
+          title: "Please Confirm",
+          size: "sm",
+          buttonSize: "sm",
+          okVariant: "danger",
+          okTitle: "YES",
+          cancelTitle: "NO",
+          footerClass: "p-2",
+          hideHeaderClose: false,
+          centered: true,
+        })
+        .then((value) => {
+          if (value) this.$router.push({ path: "/" });
+        })
+        .catch((err) => {
+          // An error occurred
+        });
     },
   },
 
@@ -100,6 +128,9 @@ export default {
   bottom: 0;
   transition: 0.1s ease;
   width: 80px;
+  box-shadow: 3px 2px 53px -33px rgba(0, 0, 0, 0.71);
+  -webkit-box-shadow: 3px 2px 53px -33px rgba(0, 0, 0, 0.71);
+  -moz-box-shadow: 3px 2px 53px -33px rgba(0, 0, 0, 0.71);
 
   &__bars {
     position: absolute;

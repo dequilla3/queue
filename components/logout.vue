@@ -17,8 +17,28 @@ export default {
   },
   methods: {
     logout() {
-      localStorage.role = "";
-      this.$router.push({ path: "/" });
+      this.showMsgBoxConfirmation();
+    },
+
+    showMsgBoxConfirmation() {
+      this.$bvModal
+        .msgBoxConfirm("Are you sure you want to Logout?", {
+          title: "Please Confirm",
+          size: "sm",
+          buttonSize: "sm",
+          okVariant: "danger",
+          okTitle: "YES",
+          cancelTitle: "NO",
+          footerClass: "p-2",
+          hideHeaderClose: false,
+          centered: true,
+        })
+        .then((value) => {
+          if (value) this.$router.push({ path: "/" });
+        })
+        .catch((err) => {
+          // An error occurred
+        });
     },
   },
 
