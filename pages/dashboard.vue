@@ -1,62 +1,65 @@
 <template>
-  <div class="dashboard">
-    <div class="dashboard__content">
-      <div class="dashboard__vid">
-        <video loop preload="metadata" controls>
-          <source src="gagss.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-        <img :src="logo" class="watermark" />
-      </div>
-      <div class="dashboard__queue">
-        <div class="dashboard__queue__logo">
-          <img :src="logo" class="mr-2" />
-          <p class="dashboard__queue__logo__title">
-            PHILIPPINE CROP <br />
-            INSURANCE CORPORATION REGION XI
-          </p>
+  <div>
+    <logout mode="light" pos="left" />
+    <div class="dashboard">
+      <div class="dashboard__content">
+        <div class="dashboard__vid">
+          <video loop preload="metadata" controls>
+            <source src="gagss.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+          <!-- <img :src="logo" class="watermark" /> -->
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th>COUNTER</th>
-              <th>CLIENT NO.</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(item, index) in windowQueue" :key="index">
-              <td class="td--window">{{ item.windowDesc }}</td>
-              <td class="td--queue_number">
-                {{ `${item.tCode}${String(item.qNum).padStart(3, "0")}` }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="dashboard__queue">
+          <div class="dashboard__queue__logo">
+            <img :src="logo" class="mr-2" />
+            <p class="dashboard__queue__logo__title">
+              PHILIPPINE CROP <br />
+              INSURANCE CORPORATION REGION XI
+            </p>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>COUNTER</th>
+                <th>CLIENT NO.</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(item, index) in windowQueue" :key="index">
+                <td class="td--window">{{ item.windowDesc }}</td>
+                <td class="td--queue_number">
+                  {{ `${item.tCode}${String(item.qNum).padStart(3, "0")}` }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
-    <div class="bottom_section" @dblclick="editRunningText">
-      <marquee class="bottom_section__running_text">{{ runningText }}</marquee>
-      <div class="bottom_section__time">
-        {{ dateNow.toString().toUpperCase() }}
+      <div class="bottom_section" @dblclick="editRunningText">
+        <marquee class="bottom_section__running_text">{{ runningText }}</marquee>
+        <div class="bottom_section__time">
+          {{ dateNow.toString().toUpperCase() }}
+        </div>
       </div>
-    </div>
 
-    <b-modal
-      id="edit_runningtext_modal"
-      ref="modal"
-      title="Edit running text"
-      no-close-on-backdrop
-      no-close-on-esc
-      @ok="handleOk"
-    >
-      <b-form-textarea
-        id="textarea"
-        v-model="tempRunningText"
-        placeholder="Enter something..."
-        rows="3"
-        max-rows="6"
-      ></b-form-textarea>
-    </b-modal>
+      <b-modal
+        id="edit_runningtext_modal"
+        ref="modal"
+        title="Edit running text"
+        no-close-on-backdrop
+        no-close-on-esc
+        @ok="handleOk"
+      >
+        <b-form-textarea
+          id="textarea"
+          v-model="tempRunningText"
+          placeholder="Enter something..."
+          rows="3"
+          max-rows="6"
+        ></b-form-textarea>
+      </b-modal>
+    </div>
   </div>
 </template>
 
@@ -64,8 +67,18 @@
 import moment from "moment";
 import logo from "../assets/img/logo.png";
 import io from "socket.io-client";
+import logout from "../components/logout.vue";
+import { Howl, Howler } from "howler";
+
+const sound = new Howl({
+  src: ["attention.mp3"],
+});
+
 export default {
   name: "dashboard",
+  components: {
+    logout,
+  },
   data() {
     return {
       server: "Connecting...",
@@ -139,12 +152,17 @@ export default {
       );
     },
 
+    //TODO: play sound on dasboard
     async fetchQueueList(val) {
       await this.$store.dispatch("counter/getAllQueueList", val.wCode).then((res) => {
         let ongoing = res.data.filter(function (val) {
           return val.status == "ONGOING";
         });
-        val.qNum = ongoing[0] ? ongoing[0].queue_num : 0;
+        let newQnum = ongoing[0] ? ongoing[0].queue_num : 0;
+        if (newQnum != val.qNum && newQnum != 0) {
+          // sound.play();
+          val.qNum = newQnum;
+        }
       });
     },
   },
@@ -157,14 +175,14 @@ export default {
   },
 
   beforeDestroy() {
-    clearInterval(this.interval);
+    clearInterval(this.timeInterval);
     clearInterval(this.intervalOngoing);
     clearInterval(this.roleCheckInterval);
   },
 
   created() {
     // let serverLink = `${process.env.baseURL}`;
-    // const socket = io.connect(serverLink, {});
+    // const socket = io.connect(serverLink);
   },
 
   mounted() {
@@ -172,7 +190,7 @@ export default {
       this.fetchQueueListPerWindow();
     }, 1000);
 
-    this.interval = setInterval(() => {
+    this.timeInterval = setInterval(() => {
       this.dateNow = moment().format("LLLL");
     }, 1000);
 

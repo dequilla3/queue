@@ -1,6 +1,7 @@
 <template>
   <div>
     <div class="dontPrint">
+      <logout mode="dark" pos="left" />
       <div class="counter_container dontPrint">
         <div class="counter_container__main">
           <div class="counter_container__main__text">
@@ -128,6 +129,7 @@
 </template>
 <script>
 import queueTicket from "../components/Report/queueTicket.vue";
+import logout from "../components/logout.vue";
 import axios from "axios";
 import moment from "moment";
 
@@ -136,6 +138,7 @@ const audio = new Audio("attention.mp3");
 export default {
   components: {
     queueTicket,
+    logout,
   },
   data() {
     return {
@@ -321,7 +324,6 @@ export default {
           switch (status) {
             case "ONGOING":
               this.ongoing = queueByStatus.length > 0 ? queueByStatus[0] : [];
-              console.log(this.ongoing);
               break;
             case "HOLD":
               this.hold = queueByStatus.length > 0 ? queueByStatus : [];
@@ -349,7 +351,7 @@ export default {
         .then((res) => {
           /*SET TICKET STATE*/
           this.$store.commit("queueticket/SET_REPORTSTATE", {
-            curNum: res.data[0].queue_num,
+            curNum: res.data[0] ? res.data[0].queue_num : 0,
             windowCode: "T",
             windowDesc: "WINDOW 5",
           });
@@ -378,7 +380,6 @@ export default {
     });
     if (codes.length < 1) this.$router.push({ path: "/" });
 
-    //repeat role check everyt 5secs
     this.roleCheckInterval = setInterval(() => {
       let codes = this.$store.state.counter.windCodes.filter(function (val) {
         return localStorage.role == val.wNum;

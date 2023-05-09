@@ -1,6 +1,7 @@
 <template>
   <div>
     <div class="release_ticket dontPrint">
+      <logout mode="light" pos="left top-1" />
       <div class="logo"><img src="../assets/img/logo.png" /></div>
       <div class="release_ticket__header">WELCOME</div>
       <div class="release_ticket__sub_header">PLEASE SELECT TRANSACTION</div>
@@ -60,11 +61,13 @@
 import axios from "axios";
 import moment from "moment";
 import queueTicket from "../components/Report/queueTicket.vue";
+import logout from "../components/logout.vue";
 
 export default {
   name: "release-ticket",
   components: {
     queueTicket,
+    logout,
   },
   data() {
     return {
@@ -123,12 +126,9 @@ export default {
   },
 
   beforeCreate() {
-    console.log(localStorage.role);
-
     if (localStorage.role != "guard") this.$router.push({ path: "/" });
     this.roleCheckInterval = setInterval(() => {
       if (localStorage.role != "guard") this.$router.push({ path: "/" });
-      console.log(localStorage.role);
     }, 5000);
   },
 
