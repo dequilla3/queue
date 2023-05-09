@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="dontPrint">
-      <logout mode="dark" pos="left" />
+      <sidebar />
       <div class="counter_container dontPrint">
         <div class="counter_container__main">
           <div class="counter_container__main__text">
@@ -130,6 +130,7 @@
 <script>
 import queueTicket from "../components/Report/queueTicket.vue";
 import logout from "../components/logout.vue";
+import sidebar from "../components/sidebar.vue";
 import axios from "axios";
 import moment from "moment";
 
@@ -139,6 +140,7 @@ export default {
   components: {
     queueTicket,
     logout,
+    sidebar,
   },
   data() {
     return {

@@ -33,6 +33,8 @@ export default {
   font-size: 30px;
   transform: rotate(180deg);
   z-index: 1000;
+  cursor: pointer;
+
   &:hover {
     opacity: 0.8;
   }

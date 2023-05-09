@@ -8,8 +8,8 @@ export default {
   },
 
   mutations: {
-    triggerClick(state) {
-      state.barIsClicked = !state.barIsClicked;
+    triggerClick(state, barIsClicked) {
+      state.barIsClicked = barIsClicked;
     }
   },
 

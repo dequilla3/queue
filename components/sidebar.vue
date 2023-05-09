@@ -1,18 +1,21 @@
 <template>
-  <div v-bind:class="{ sideBar_collapse: barIsClicked, sideBar: !barIsClicked }">
+  <div class="sideBar">
     <ul>
-      <li @click="collapseSidebar">
-        <font-awesome-icon class="sideBar__brand mr-2" icon="fa-solid fa-bars" />
-        <label v-show="!barIsClicked"> QMS</label>
+      <li class="brand">
+        <img class="brand__img" src="../assets/img/logo.png" />
+        <label>PCIC XI</label>
       </li>
+      <hr />
       <li
-        :class="{ active: item.isActive }"
+        :class="`icon ${item.isActive ? 'active' : ''}`"
         v-for="(item, index) in modules"
         :key="index"
-        @click="setActiveModule(item.code)"
+        @click="onClickItem(item)"
+        :title="item.title"
+        v-if="item.show"
       >
-        <font-awesome-icon class="mr-1" :icon="['fa-solid', item.icon]" />
-        <label v-show="!barIsClicked"> {{ item.moduleName }}</label>
+        <div><font-awesome-icon class="mr-1" :icon="['fa-solid', item.icon]" /></div>
+        <div>{{ item.moduleName }}</div>
       </li>
     </ul>
   </div>
@@ -27,27 +30,33 @@ export default {
       modules: [
         {
           id: 1,
-          moduleName: "Dashboard",
-          path: "/dashboard",
-          isActive: false,
-          code: "db",
-          icon: "table-columns",
-        },
-        {
-          id: 2,
-          moduleName: "Ticket Releasing",
-          path: "/ticket",
-          isActive: false,
-          code: "tr",
-          icon: "ticket",
-        },
-        {
-          id: 3,
           moduleName: "Counter",
           path: "/counter",
           isActive: false,
-          code: "ct",
-          icon: "user-tie",
+          code: "counter",
+          icon: "layer-group",
+          title: "Counter",
+          show: true,
+        },
+        {
+          id: 2,
+          moduleName: "A/R",
+          path: "/dataentry",
+          isActive: false,
+          code: "entry",
+          icon: "receipt",
+          title: "Acknowledgement Receipt",
+          show: localStorage.role == "w5",
+        },
+        {
+          id: 3,
+          moduleName: "Logout",
+          path: "/",
+          isActive: false,
+          code: "logout",
+          icon: "arrow-right-to-bracket",
+          title: "Logout",
+          show: true,
         },
       ],
     };
@@ -56,8 +65,14 @@ export default {
   methods: {
     collapseSidebar() {
       this.barIsClicked = !this.barIsClicked;
-      this.$store.commit("dashboard/triggerClick");
+      this.$store.commit("dashboard/triggerClick", this.barIsClicked);
     },
+
+    onClickItem(item) {
+      this.setActiveModule(item.code);
+      this.$router.push({ path: item.path });
+    },
+
     setActiveModule(code) {
       this.modules.forEach(function (val) {
         val.isActive = false;
@@ -71,41 +86,12 @@ export default {
   },
 
   mounted() {
-    if (!localStorage.activeMenu) {
-      localStorage.activeMenu = "db";
-      localStorage.activePath = "/dashboard";
-    }
     this.setActiveModule(localStorage.activeMenu);
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.sideBar_collapse {
-  position: fixed;
-  background: whitesmoke;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  transition: 0.1s ease;
-  width: 60px;
-
-  &__bars {
-    position: absolute;
-    cursor: pointer;
-    top: 30px;
-    left: 20px;
-  }
-
-  &__brand {
-    font-size: 20px;
-  }
-
-  &__text {
-    font-size: 18px;
-  }
-}
-
 .sideBar {
   position: fixed;
   background: whitesmoke;
@@ -113,17 +99,13 @@ export default {
   top: 0;
   bottom: 0;
   transition: 0.1s ease;
-  width: 250px;
+  width: 80px;
 
   &__bars {
     position: absolute;
     cursor: pointer;
-    top: 20px;
+    top: 30px;
     left: 20px;
-  }
-
-  &__brand {
-    font-size: 20px;
   }
 
   &__text {
@@ -133,13 +115,16 @@ export default {
 
 ul {
   list-style-type: none;
-  margin-top: 20px;
+  margin-top: 50px;
 }
+
 li {
-  padding: 20px;
-  font-size: 14px;
-  margin-bottom: 10px;
+  text-align: center;
+  align-items: center;
+  font-size: 16px;
+  margin-bottom: 30px;
   transition: 0.1s ease;
+  padding: 20px 0px;
 
   cursor: pointer;
 
@@ -150,5 +135,20 @@ li {
 
 .active {
   background: rgb(216, 216, 216);
+}
+
+.icon {
+  display: block;
+}
+
+.brand {
+  align-items: center;
+  cursor: pointer;
+  font-weight: bold;
+
+  &__img {
+    width: 50px;
+    height: 50px;
+  }
 }
 </style>

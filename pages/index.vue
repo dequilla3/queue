@@ -94,6 +94,8 @@ export default {
 
             default:
               this.$router.push({ path: "/counter" });
+              localStorage.activeMenu = "counter";
+              localStorage.activePath = "/counter";
               break;
           }
         });

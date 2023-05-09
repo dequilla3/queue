@@ -4,7 +4,7 @@
     <div class="dashboard">
       <div class="dashboard__content">
         <div class="dashboard__vid">
-          <video loop preload="metadata" controls>
+          <video loop controls>
             <source src="gagss.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
