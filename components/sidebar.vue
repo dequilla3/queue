@@ -1,10 +1,10 @@
 <template>
   <div class="sideBar">
     <ul>
-      <li class="brand">
+      <!-- <li class="brand">
         <img class="brand__img" src="../assets/img/logo.png" />
         <label>PCIC XI</label>
-      </li>
+      </li> -->
       <hr />
       <li
         :class="`icon ${item.isActive ? 'active' : ''}`"
@@ -38,7 +38,7 @@ export default {
           code: "counter",
           icon: "layer-group",
           title: "Counter",
-          show: true,
+          show: localStorage.role != "admin",
         },
         {
           id: 2,
@@ -52,6 +52,16 @@ export default {
         },
         {
           id: 3,
+          moduleName: "Admin",
+          path: "/admin",
+          isActive: localStorage.role == "admin",
+          code: "admin",
+          icon: "user-shield",
+          title: "Admin",
+          show: localStorage.role == "admin",
+        },
+        {
+          id: 4,
           moduleName: "Logout",
           path: "/",
           isActive: false,

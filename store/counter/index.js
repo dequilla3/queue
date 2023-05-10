@@ -46,7 +46,7 @@ export default {
     async getAllQueueList({ commit }, role) {
       return await axios({
         method: "POST",
-        url: `${this.$axios.defaults.baseURL}/listQueuNum/${0}`,
+        url: `${this.$axios.defaults.baseURL}/queuing/listQueuNum/${0}`,
         data: {
           winNum: role,
           newStatus: "",
@@ -61,7 +61,7 @@ export default {
     async postQueuesByStatus({ commit }, { role, newStatus, oldStatus, queueId }) {
       await axios({
         method: "POST",
-        url: `${this.$axios.defaults.baseURL}/listQueuNum/${queueId}`,
+        url: `${this.$axios.defaults.baseURL}/queuing/listQueuNum/${queueId}`,
         data: {
           winNum: role,
           newStatus: newStatus,

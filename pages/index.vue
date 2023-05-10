@@ -41,6 +41,7 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   name: "IndexPage",
 
@@ -69,39 +70,48 @@ export default {
       };
     },
 
-    userLogin(e) {
+    async userLogin(e) {
       e.preventDefault();
+      await axios({
+        method: "POST",
+        url: `${this.$axios.defaults.baseURL}/user/authenticate`,
+        data: {
+          username: this.uName,
+          user_password: this.pw,
+        },
+      })
+        .then((res) => {
+          let role = res.data.result.user_role;
+          localStorage.role = role;
 
-      let userExists = this.getUsers.filter(
-        function (val) {
-          return val.uname == this.uName && val.pw == this.pw;
-        }.bind(this)
-      );
+          this.$nextTick(() => {
+            switch (role) {
+              case "guard":
+                this.$router.push({ path: "/releaseticket" });
+                break;
 
-      if (userExists.length > 0) {
-        let role = userExists[0].role;
-        localStorage.role = role;
+              case "dashboard":
+                this.$router.push({ path: "/dashboard" });
+                break;
 
-        this.$nextTick(() => {
-          switch (role) {
-            case "guard":
-              this.$router.push({ path: "/releaseticket" });
-              break;
+              case "admin":
+                this.$router.push({ path: "/admin" });
+                localStorage.activeMenu = "admin";
+                localStorage.activePath = "/admin";
+                break;
 
-            case "dashboard":
-              this.$router.push({ path: "/dashboard" });
-              break;
-
-            default:
-              this.$router.push({ path: "/counter" });
-              localStorage.activeMenu = "counter";
-              localStorage.activePath = "/counter";
-              break;
-          }
+              default:
+                this.$router.push({ path: "/counter" });
+                localStorage.activeMenu = "counter";
+                localStorage.activePath = "/counter";
+                break;
+            }
+          });
+        })
+        .catch((err) => {
+          this.showAlert("User doesn't exists.", "danger");
+          console.log(err);
         });
-      } else {
-        this.showAlert("User doesn't exists!", "danger");
-      }
     },
   },
 

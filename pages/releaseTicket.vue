@@ -94,7 +94,7 @@ export default {
     async doPostTransaction() {
       await axios({
         method: "POST",
-        url: `${this.$axios.defaults.baseURL}/generateQueueNum`,
+        url: `${this.$axios.defaults.baseURL}/queuing/generateQueueNum`,
         data: {
           winNum: this.wind.winNum,
           transType: this.trans.transCode,

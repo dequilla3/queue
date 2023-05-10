@@ -85,12 +85,7 @@
               aria-label="Enter text here..."
             ></b-form-input>
           </b-input-group>
-          <b-table
-            sticky-header
-            hover
-            :items="filteredHold()"
-            :fields="tblHeldNumFields"
-          >
+          <b-table sticky-header hover :items="filteredHold()" :fields="tblHeldNumFields">
             <template #cell(queue_num)="row">
               <h2>{{ row.item.queue_num }}</h2>
             </template>
@@ -311,10 +306,7 @@ export default {
     },
 
     async fetchAllQueueList() {
-      return await this.$store.dispatch(
-        "counter/getAllQueueList",
-        localStorage.role
-      );
+      return await this.$store.dispatch("counter/getAllQueueList", localStorage.role);
     },
 
     getQueueNum() {
@@ -352,7 +344,7 @@ export default {
       this.showOverlayNext = true;
       await axios({
         method: "POST",
-        url: `${this.$axios.defaults.baseURL}/generateQueueNum`,
+        url: `${this.$axios.defaults.baseURL}/queuing/generateQueueNum`,
         data: {
           winNum: "w5",
           transType: "t1",

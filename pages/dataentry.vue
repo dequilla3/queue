@@ -2,16 +2,15 @@
   <div>
     <sidebar />
     <div class="dataentry">
+      <h5 class="font-weight-bold">ACKNOWLEDGEMENT RECEIPT</h5>
+      <br />
       <b-button variant="primary" @click="onNewTrans()">
         <font-awesome-icon icon="fa-solid fa-plus" />
         New Receipt
       </b-button>
 
       <div class="dataentry__tooltip mt-3">
-        <b-form-input
-          class="dataentry__tooltip__input mr-1"
-          placeholder="Search . . ."
-        />
+        <b-form-input class="dataentry__tooltip__input mr-1" placeholder="Search . . ." />
         <b-form-select
           title="Filter bt status"
           class="dataentry__tooltip__select mr-1"
@@ -34,18 +33,24 @@
           v-model="dateTo"
           locale="en"
         ></b-form-datepicker>
-        <b-button>
-          <font-awesome-icon :icon="['fas', 'magnifying-glass']"
-        /></b-button>
+        <b-button> <font-awesome-icon :icon="['fas', 'magnifying-glass']" /></b-button>
       </div>
 
       <b-table
-        class="dataentry__table mt-3"
+        class="dataentry__table mt-4"
         sticky-header
         hover
         :items="arEntries"
         :fields="arEntriesTblFields"
       >
+        <template #cell(totalAmt)="row">
+          {{ `&#8369; ${row.item.totalAmt}` }}
+        </template>
+
+        <template #cell(dateTrans)="row">
+          {{ row.item.dateTrans.toLocaleDateString() }}
+        </template>
+
         <template #cell(action)="row">
           <b-button
             class="dataentry__action_btn mb-1"
@@ -63,19 +68,78 @@
             <font-awesome-icon icon="fa-solid fa-eye" />
           </b-button>
         </template>
-
-        <template #cell(dateTrans)="row">
-          {{ row.item.dateTrans.toLocaleDateString() }}
-        </template>
       </b-table>
     </div>
 
     <b-modal
+      class="newTransModal"
       id="newTransModal"
       title="New receipt"
-      size="xl"
+      size="huge"
       no-close-on-backdrop
     >
+      <div class="newTransModal__container">
+        <div class="newTransModal__form">
+          <b-form @submit="">
+            <b-form-group id="payor-group" label="Payor:" label-for="input-payor">
+              <b-form-input
+                id="input-payor"
+                v-model="newTransModalForm.payorName"
+                type="text"
+                placeholder="Enter payor full name"
+                required
+              ></b-form-input>
+            </b-form-group>
+
+            <b-form-group label="Payment type:" v-slot="{ ariaDescribedby }">
+              <b-form-radio-group
+                v-model="newTransModalForm.selectedPaymentType"
+                :options="newTransModalForm.paymentTypeOptions"
+                :aria-describedby="ariaDescribedby"
+                name="radio-inline"
+              ></b-form-radio-group>
+            </b-form-group>
+            <div v-if="newTransModalForm.selectedPaymentType == 'check'">
+              <b-form-group
+                id="drawee-group"
+                label="Drawee Bank:"
+                label-for="input-drawee"
+              >
+                <b-form-input
+                  id="input-drawee"
+                  v-model="newTransModalForm.draweeBank"
+                  type="text"
+                  placeholder="Enter drawee bank"
+                  required
+                ></b-form-input>
+              </b-form-group>
+              <b-form-group id="number-group" label="Number:" label-for="input-number">
+                <b-form-input
+                  id="input-number"
+                  v-model="newTransModalForm.number"
+                  type="text"
+                  placeholder="Enter number"
+                  required
+                ></b-form-input>
+              </b-form-group>
+
+              <label for="date-check">Date:</label>
+              <b-form-datepicker
+                id="date-check"
+                v-model="newTransModalForm.dateCheck"
+              ></b-form-datepicker>
+            </div>
+          </b-form>
+        </div>
+        <div class="newTransModal__line">
+          <b-button class="mb-1" variant="primary" size="sm">
+            <font-awesome-icon :icon="['fas', 'arrow-down']" />
+            Insert Product
+          </b-button>
+          <b-table striped hover :items="newTransModalForm.productLine"></b-table>
+        </div>
+      </div>
+
       <template #modal-footer>
         <div class="w-100">
           <b-button variant="primary" class="float-right ml-1">
@@ -115,6 +179,7 @@ export default {
           collectingOfficer: "Juan Dela Cruz",
           checkDetails: { draweeBank: "", number: "", date: "" },
           prodLine: [{ id: 1, prodName: "RICE", amount: 2000 }],
+          totalAmt: 2000,
           dateTrans: new Date(),
         },
       ],
@@ -125,6 +190,7 @@ export default {
         { key: "payor", label: "Payor" },
         { key: "transType", label: "Transaction Type" },
         { key: "collectingOfficer", label: "Collecting Officer" },
+        { key: "totalAmt", label: "Total Amount" },
         { key: "dateTrans", label: "Date Transaction" },
         { key: "action", label: "Actions" },
       ],
@@ -139,6 +205,19 @@ export default {
 
       dateFrom: "",
       dateTo: "",
+
+      newTransModalForm: {
+        payorName: "",
+        selectedPaymentType: "cash",
+        paymentTypeOptions: [
+          { text: "CASH", value: "cash" },
+          { text: "CHECK", value: "check" },
+        ],
+        draweeBank: "",
+        number: "",
+        dateCheck: "",
+        productLine: [{ prodName: "RICE", amount: 2000 }],
+      },
     };
   },
 
@@ -159,15 +238,15 @@ export default {
 <style lang="scss" scoped>
 .dataentry {
   height: 80vh;
-  padding: 56px;
-  margin: 64px 44px 64px 124px;
+  padding: 32px 56px;
+  margin: 60px 40px 60px 120px;
   box-shadow: 1px 1px 27px -14px rgba(0, 0, 0, 0.53);
   -webkit-box-shadow: 1px 1px 27px -14px rgba(0, 0, 0, 0.53);
   -moz-box-shadow: 1px 1px 27px -14px rgba(0, 0, 0, 0.53);
 
   &__action_btn {
     font-size: 12px;
-    border-radius: 100%;
+    border-radius: 20px;
   }
 
   &__table {
@@ -195,6 +274,28 @@ export default {
       border: 2px solid #ced4da;
       outline: none;
     }
+  }
+}
+
+.newTransModal {
+  $boxShadow: 0px 0px 18px -3px rgba(0, 0, 0, 0.15);
+
+  &__container {
+    display: flex;
+  }
+
+  &__form {
+    width: 24%;
+    margin: 20px;
+    padding: 20px;
+    box-shadow: $boxShadow;
+  }
+
+  &__line {
+    width: 100%;
+    margin: 20px;
+    padding: 20px;
+    box-shadow: $boxShadow;
   }
 }
 </style>

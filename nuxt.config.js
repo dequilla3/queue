@@ -12,7 +12,7 @@ export default {
       { hid: "description", name: "description", content: "" },
       { name: "format-detection", content: "telephone=no" },
     ],
-    link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
+    link: [{ rel: "icon", type: "image/x-icon", href: "/logo.png" }],
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
@@ -42,12 +42,13 @@ export default {
     extractCSS: process.env.NODE_ENV !== "development",
   },
 
-  server: {
-    port: 3300,
-  },
+  // server: {
+  //   port: 8000, // default: 3000     
+  //   host: '0.0.0.0', // default: localhost   
+  // },
 
   axios: {
-    baseUrl: "http://172.16.28.15:5100/queuing"
+    baseUrl: "http://172.16.28.15:5100"
   },
   env: {
     baseURL: "http://172.16.28.15:5100",
