@@ -1,10 +1,10 @@
 <template>
   <div class="sideBar">
     <ul>
-      <!-- <li class="brand">
+      <li class="brand">
         <img class="brand__img" src="../assets/img/logo.png" />
         <label>PCIC XI</label>
-      </li> -->
+      </li>
       <hr />
       <li
         :class="`icon ${item.isActive ? 'active' : ''}`"
@@ -115,7 +115,10 @@ export default {
           centered: true,
         })
         .then((value) => {
-          if (value) this.$router.push({ path: "/" });
+          if (value) {
+            this.$router.push({ path: "/" });
+            localStorage.clear();
+          }
         })
         .catch((err) => {
           // An error occurred

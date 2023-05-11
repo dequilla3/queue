@@ -18,17 +18,16 @@
               <b-form-input
                 class="admin__tooltip__input mr-1"
                 placeholder="Search . . ."
+                v-model="inputSearch"
+                @keyup.enter="fetchAllUsers()"
               />
               <b-form-select
                 title="Filter bt status"
                 class="admin__tooltip__select mr-1"
                 v-model="selectedRole"
                 :options="optionRole"
+                @change="fetchAllUsers()"
               ></b-form-select>
-
-              <b-button>
-                <font-awesome-icon :icon="['fas', 'magnifying-glass']"
-              /></b-button>
             </div>
 
             <b-table
@@ -48,16 +47,18 @@
                   size="sm"
                   class="admin__action_btn"
                   variant="success"
-                  title="Edit"
+                  title="Edit user details"
+                  @click="onEditUser(row.item)"
                 >
                   <font-awesome-icon :icon="['fas', 'pen-to-square']" />
                 </b-button>
 
                 <b-button
                   size="sm"
-                  title="Reset"
+                  title="Reset Password"
                   class="admin__action_btn"
                   variant="info"
+                  @click="onResetPassword(row.item)"
                 >
                   <font-awesome-icon :icon="['fas', 'arrow-rotate-right']" />
                 </b-button>
@@ -77,9 +78,10 @@
         class="userModal"
         id="userModal"
         :title="userModalTitle"
-        size="sm"
+        size="medium"
         no-close-on-backdrop
         hide-footer
+        centered
       >
         <b-form @submit="onSaveUser">
           <b-form-group id="input-fname" label="First Name:" label-for="input-fname">
@@ -164,6 +166,7 @@ export default {
   },
   data() {
     return {
+      inputSearch: "",
       perPage: 8,
       currentPage: 1,
 
@@ -184,9 +187,9 @@ export default {
 
       action: "",
       userModalTitle: "",
-      selectedRole: null,
+      selectedRole: "",
       optionRole: [
-        { value: null, text: "No selected role" },
+        { value: "", text: "ALL" },
         { value: "admin", text: "ADMIN" },
         { value: "dashboard", text: "DASHBOARD" },
         { value: "guard", text: "GUARD" },
@@ -202,6 +205,7 @@ export default {
         { key: "firstname", label: "First Name" },
         { key: "middlename", label: "Middle Name" },
         { key: "lastname", label: "Last Name" },
+        { key: "username", label: "Username" },
         { key: "user_role", label: "User Role" },
         { key: "action", label: "Actions" },
       ],
@@ -219,12 +223,11 @@ export default {
     },
 
     onAddUser() {
-      //reset fields
       this.user = {
         firstName: "",
         middleName: "",
         lastName: "",
-        role: null,
+        role: "",
       };
 
       this.userModalTitle = "Add new user";
@@ -232,30 +235,114 @@ export default {
       this.action = "add";
     },
 
-    async onSaveUser(e) {
-      e.preventDefault();
+    onEditUser(item) {
+      this.user = {
+        userId: item.user_id,
+        firstName: item.firstname,
+        middleName: item.middlename,
+        lastName: item.lastname,
+        role: item.user_role,
+      };
 
-      const userName = this.generateUserName();
+      this.userModalTitle = "Edit user details";
+      this.$bvModal.show("userModal");
+      this.action = "edit";
+    },
+
+    onResetPassword(item) {
+      this.$bvModal
+        .msgBoxConfirm("Are you sure you want to Reset user password?", {
+          title: "Please Confirm",
+          size: "sm",
+          buttonSize: "sm",
+          okVariant: "danger",
+          okTitle: "YES",
+          cancelTitle: "NO",
+          footerClass: "p-2",
+          centered: true,
+        })
+        .then((value) => {
+          if (value) this.doResetUserPassword(item);
+        })
+        .catch((err) => {
+          this.loadingOnSave = false;
+          this.showAlert(err, "danger");
+        });
+    },
+    async doResetUserPassword(item) {
+      await axios({
+        method: "PUT",
+        url: `${this.$axios.defaults.baseURL}/user/resetUser/${item.user_id}`,
+        data: {
+          username: item.username,
+        },
+      }).then(
+        (res) => {
+          this.showAlert("Password reset successfully.", "success");
+        },
+        (err) => {
+          this.showAlert(err.response.data.errorMsg, "danger");
+        }
+      );
+    },
+
+    onSaveUser(e) {
+      e.preventDefault();
       this.loadingOnSave = true;
 
+      this.$bvModal
+        .msgBoxConfirm("Are you sure you want to Save user details?", {
+          title: "Please Confirm",
+          size: "sm",
+          buttonSize: "sm",
+          okVariant: "primary",
+          okTitle: "YES",
+          cancelTitle: "NO",
+          footerClass: "p-2",
+          centered: true,
+        })
+        .then((value) => {
+          if (value) this.doSaveUser();
+          this.loadingOnSave = false;
+        })
+        .catch((err) => {
+          this.loadingOnSave = false;
+          this.showAlert(err, "danger");
+        });
+    },
+
+    async doSaveUser() {
+      const isAdd = this.action == "add";
+      const userName = this.generateUserName();
+      const data = isAdd
+        ? {
+            firstName: this.user.firstName,
+            middleName: this.user.middleName,
+            lastName: this.user.lastName,
+            username: userName,
+            user_password: userName, //for default password same as username
+            user_role: this.user.role,
+          }
+        : {
+            firstName: this.user.firstName,
+            middleName: this.user.middleName,
+            lastName: this.user.lastName,
+            user_role: this.user.role,
+          };
+
       await axios({
-        method: "POST",
-        url: `${this.$axios.defaults.baseURL}/user/addNewUser`,
-        data: {
-          firstName: this.user.firstName,
-          middleName: this.user.middleName,
-          lastName: this.user.lastName,
-          username: userName,
-          user_password: userName, //for default password same as username
-          user_role: this.user.role,
-        },
+        method: `${isAdd ? "POST" : "PUT"}`,
+        url: `${this.$axios.defaults.baseURL}/user/${
+          isAdd ? "addNewUser" : `updateUser/${this.user.userId}`
+        }`,
+        data,
       }).then(
         () => {
           this.user = {
             firstName: "",
             middleName: "",
             lastName: "",
-            role: null,
+            role: "",
           };
           this.$bvModal.hide("userModal");
           this.showAlert(
@@ -267,7 +354,7 @@ export default {
           this.fetchAllUsers();
         },
         (err) => {
-          this.showAlert(err, "danger");
+          this.showAlert(err.response.data.errorMsg, "danger");
         }
       );
     },
@@ -275,6 +362,7 @@ export default {
     generateUserName() {
       const firstNameSplit = this.user.firstName.split(" ");
       let firstChar = "";
+
       firstNameSplit.forEach(function (val) {
         firstChar += val.charAt(0);
       });
@@ -287,7 +375,17 @@ export default {
         url: `${this.$axios.defaults.baseURL}/user/getAllUser`,
       }).then(
         (res) => {
-          this.userList = res.data;
+          this.userList = res.data.filter(
+            function (val) {
+              return (
+                (val.firstname.includes(this.inputSearch) ||
+                  val.middlename.includes(this.inputSearch) ||
+                  val.username.includes(this.inputSearch) ||
+                  val.lastname.includes(this.inputSearch)) &&
+                val.user_role.includes(this.selectedRole)
+              );
+            }.bind(this)
+          );
         },
         (err) => {
           this.showAlert(err, "danger");
@@ -314,10 +412,6 @@ export default {
   box-shadow: 1px 1px 27px -14px rgba(0, 0, 0, 0.53);
   -webkit-box-shadow: 1px 1px 27px -14px rgba(0, 0, 0, 0.53);
   -moz-box-shadow: 1px 1px 27px -14px rgba(0, 0, 0, 0.53);
-
-  &__action_btn {
-    // border-radius: 10px;
-  }
 
   &__table {
     font-size: 12px !important;

@@ -34,7 +34,10 @@ export default {
           centered: true,
         })
         .then((value) => {
-          if (value) this.$router.push({ path: "/" });
+          if (value) {
+            this.$router.push({ path: "/" });
+            localStorage.clear();
+          }
         })
         .catch((err) => {
           // An error occurred

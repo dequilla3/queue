@@ -2,7 +2,7 @@ export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   ssr: false,
   head: {
-    title: "PCIC Queue System",
+    title: "PCIC QMS & Data Entry",
     htmlAttrs: {
       lang: "en",
     },
