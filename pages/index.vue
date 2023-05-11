@@ -20,7 +20,12 @@
         type="password"
       ></b-form-input>
 
-      <b-button type="submit" class="login__form__btn" variant="primary">
+      <b-button
+        type="submit"
+        class="login__form__btn"
+        variant="primary"
+        :disabled="isLoading"
+      >
         Login
         <font-awesome-icon icon="fa-solid fa-arrow-right" v-show="!isLoading" />
         <b-spinner small v-show="isLoading" />
@@ -46,7 +51,11 @@
       </template>
 
       <b-form @submit="updatePassword">
-        <b-form-group id="input-newpw" label="Password:" label-for="input-newpw">
+        <b-form-group
+          id="input-newpw"
+          label="Password:"
+          label-for="input-newpw"
+        >
           <b-form-input
             id="input-newpw"
             v-model="newPw"
@@ -167,7 +176,11 @@ export default {
         },
         (err) => {
           this.isLoading = false;
-          this.showAlert(err.response.data.errorMsg, "danger");
+          if (err.response) {
+            this.showAlert(err.response.data.errorMsg, "danger");
+          } else {
+            this.showAlert(err, "danger");
+          }
         }
       );
     },
@@ -276,12 +289,15 @@ $y: 15%;
   height: 30px;
 }
 .login {
-  padding: 40px;
+  padding: 60px;
   background: whitesmoke;
   margin-left: $x;
   margin-right: $x;
   margin-top: $y;
   margin-bottom: $y;
+  box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.4);
+  -webkit-box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.4);
   &__header-text {
     font-size: 20px;
     font-weight: bold;

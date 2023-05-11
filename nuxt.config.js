@@ -42,16 +42,15 @@ export default {
     extractCSS: process.env.NODE_ENV !== "development",
   },
 
-  // server: {
-  //   port: 8000, // default: 3000     
-  //   host: '0.0.0.0', // default: localhost   
-  // },
+  server: {
+    port: 3000,
+    host: "0.0.0.0",
+  },
 
   axios: {
-    baseUrl: "http://172.16.28.15:5100"
+    baseUrl: "http://172.16.28.15:5100",
   },
   env: {
     baseURL: "http://172.16.28.15:5100",
-
   },
 };
