@@ -1,117 +1,116 @@
 <template>
-  <div class="login">
-    <p class="login__header-text">
-      <img src="../assets/img/logo.png" class="logo" /> PCIC XI
-    </p>
-    <br />
-    <b-form class="login__form" @submit="userLogin">
-      <b-form-input
-        v-model="uName"
-        required
-        class="mb-2"
-        placeholder="Username"
-      ></b-form-input>
+  <div>
+    <div class="login">
+      <p class="login__header-text mb-5">
+        <img src="../assets/img/logo.png" class="logo" /> PCIC XI
+      </p>
 
-      <b-form-input
-        v-model="pw"
-        required
-        class="mb-4"
-        placeholder="Password"
-        type="password"
-      ></b-form-input>
+      <b-form class="login__form" @submit="userLogin">
+        <b-form-input
+          v-model="uName"
+          required
+          class="mb-2"
+          placeholder="Username"
+        ></b-form-input>
 
-      <b-button
-        type="submit"
-        class="login__form__btn"
-        variant="primary"
-        :disabled="isLoading"
-      >
-        Login
-        <font-awesome-icon icon="fa-solid fa-arrow-right" v-show="!isLoading" />
-        <b-spinner small v-show="isLoading" />
-      </b-button>
-    </b-form>
+        <b-form-input
+          v-model="pw"
+          required
+          class="mb-4"
+          placeholder="Password"
+          type="password"
+        ></b-form-input>
 
-    <!-- newpw -->
-    <b-modal
-      id="changePwModal"
-      class="changePwModal"
-      size="medium"
-      no-close-on-backdrop
-      no-close-on-esc
-      hide-header-close
-      hide-footer
-      centered
-    >
-      <template #modal-title>
-        <p class="font-weight-bold">
-          First login attempt, please update your password
-          <font-awesome-icon :icon="['fas', 'face-laugh']" />
-        </p>
-      </template>
-
-      <b-form @submit="updatePassword">
-        <b-form-group
-          id="input-newpw"
-          label="Password:"
-          label-for="input-newpw"
+        <b-button
+          type="submit"
+          class="login__form__btn"
+          variant="primary"
+          :disabled="isLoading"
         >
-          <b-form-input
-            id="input-newpw"
-            v-model="newPw"
-            type="password"
-            placeholder=""
-            required
-            style="text-transform: uppercase"
-          ></b-form-input>
-        </b-form-group>
-
-        <b-form-group
-          id="input-confpw"
-          label="Confirm Password:"
-          label-for="input-confpw"
-        >
-          <b-form-input
-            id="input-confpw"
-            v-model="confirmNewPw"
-            type="password"
-            placeholder=""
-            required
-            style="text-transform: uppercase"
-          ></b-form-input>
-        </b-form-group>
-
-        <!-- footer -->
-        <hr class="mt-4" />
-        <div class="w-100">
-          <b-button
-            :disabled="!confirmPassword"
-            size="sm"
-            variant="primary"
-            class="float-right ml-1"
-            type="submit"
-          >
-            <font-awesome-icon :icon="['fas', 'key']" v-show="!isLoading" />
-            Update password
-            <b-spinner small v-show="isLoading" />
-          </b-button>
-        </div>
+          Login
+          <font-awesome-icon icon="fa-solid fa-arrow-right" v-show="!isLoading" />
+          <b-spinner small v-show="isLoading" />
+        </b-button>
       </b-form>
-    </b-modal>
 
-    <b-alert
-      :show="alert.showAlert"
-      dismissible
-      :variant="alert.variant"
-      @dismissed="alert.showAlert = null"
-      id="alert-message"
-    >
-      <font-awesome-icon
-        :icon="alert.variant == 'success' ? 'check-circle' : 'exclamation'"
-        class="alert-icon mr-1"
-      />
-      {{ alert.message }}
-    </b-alert>
+      <!-- newpw -->
+      <b-modal
+        id="changePwModal"
+        class="changePwModal"
+        size="medium"
+        no-close-on-backdrop
+        no-close-on-esc
+        hide-header-close
+        hide-footer
+        centered
+      >
+        <template #modal-title>
+          <p class="font-weight-bold">
+            First login attempt, please update your password
+            <font-awesome-icon :icon="['fas', 'face-laugh']" />
+          </p>
+        </template>
+
+        <b-form @submit="updatePassword">
+          <b-form-group id="input-newpw" label="Password:" label-for="input-newpw">
+            <b-form-input
+              id="input-newpw"
+              v-model="newPw"
+              type="password"
+              placeholder=""
+              required
+              style="text-transform: uppercase"
+            ></b-form-input>
+          </b-form-group>
+
+          <b-form-group
+            id="input-confpw"
+            label="Confirm Password:"
+            label-for="input-confpw"
+          >
+            <b-form-input
+              id="input-confpw"
+              v-model="confirmNewPw"
+              type="password"
+              placeholder=""
+              required
+              style="text-transform: uppercase"
+            ></b-form-input>
+          </b-form-group>
+
+          <!-- footer -->
+          <hr class="mt-4" />
+          <div class="w-100">
+            <b-button
+              :disabled="!confirmPassword"
+              size="sm"
+              variant="primary"
+              class="float-right ml-1"
+              type="submit"
+            >
+              <font-awesome-icon :icon="['fas', 'key']" v-show="!isLoading" />
+              Update password
+              <b-spinner small v-show="isLoading" />
+            </b-button>
+          </div>
+        </b-form>
+      </b-modal>
+
+      <b-alert
+        :show="alert.showAlert"
+        dismissible
+        :variant="alert.variant"
+        @dismissed="alert.showAlert = null"
+        id="alert-message"
+      >
+        <font-awesome-icon
+          :icon="alert.variant == 'success' ? 'check-circle' : 'exclamation'"
+          class="alert-icon mr-1"
+        />
+        {{ alert.message }}
+      </b-alert>
+    </div>
+    <div class="polygon" />
   </div>
 </template>
 
@@ -282,22 +281,23 @@ export default {
 
 <style lang="scss" scoped>
 $x: 35%;
-$y: 15%;
+$y: 10%;
 
 .logo {
   width: 30px;
   height: 30px;
 }
 .login {
-  padding: 60px;
-  background: whitesmoke;
+  background: white;
+  z-index: 1;
+  padding: 60px 60px 150px 60px;
   margin-left: $x;
   margin-right: $x;
   margin-top: $y;
   margin-bottom: $y;
-  box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.4);
-  -webkit-box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.4);
-  -moz-box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.4);
+  box-shadow: 0px 0px 115px -25px rgba(0, 0, 0, 0.46);
+  -webkit-box-shadow: 0px 0px 115px -25px rgba(0, 0, 0, 0.46);
+  -moz-box-shadow: 0px 0px 115px -25px rgba(0, 0, 0, 0.46);
   &__header-text {
     font-size: 20px;
     font-weight: bold;
@@ -310,5 +310,18 @@ $y: 15%;
       width: 100%;
     }
   }
+}
+
+.polygon {
+  // clip-path: polygon(100% 0, 0 44%, 100% 100%);
+  clip-path: polygon(0 0, 100% 100%, 100% 0); // position: absolute;
+  top: 0%;
+  right: 0%;
+  background: green;
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  z-index: -1000;
+  opacity: 0.7;
 }
 </style>

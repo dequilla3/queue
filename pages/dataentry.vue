@@ -16,13 +16,13 @@
           class="dataentry__tooltip__select mr-1"
           v-model="selectedStatus"
           :options="optionStatus"
-        ></b-form-select>
+        />
 
         <b-form-datepicker
           class="dataentry__tooltip__date mr-1"
           v-model="dateFrom"
           locale="en"
-        ></b-form-datepicker>
+        />
 
         <label class="pt-2 mr-1">
           <font-awesome-icon :icon="['fas', 'arrow-right']" />
@@ -43,28 +43,22 @@
         :items="arEntries"
         :fields="arEntriesTblFields"
       >
-        <template #cell(totalAmt)="row">
-          {{ `&#8369; ${row.item.totalAmt}` }}
-        </template>
-
         <template #cell(dateTrans)="row">
           {{ row.item.dateTrans.toLocaleDateString() }}
         </template>
 
         <template #cell(action)="row">
           <b-button
-            class="dataentry__action_btn mb-1"
+            class="mb-1"
             variant="success"
             v-show="row.item.docstatus == 'DR'"
             title="Process Transaction"
           >
+            Process
             <font-awesome-icon icon="fa-solid fa-cogs" />
           </b-button>
-          <b-button
-            title="View Transaction Details"
-            class="dataentry__action_btn"
-            variant="info"
-          >
+          <b-button class="mb-1" title="View full details" variant="info">
+            View
             <font-awesome-icon icon="fa-solid fa-eye" />
           </b-button>
         </template>
@@ -81,6 +75,20 @@
       <div class="newTransModal__container">
         <div class="newTransModal__form">
           <b-form @submit="">
+            <b-form-group
+              id="seriesno-group"
+              label="Series No.:"
+              label-for="input-seriesno"
+            >
+              <b-form-input
+                id="input-seriesno"
+                v-model="newTransModalForm.seriesNo"
+                type="text"
+                required
+                disabled
+              ></b-form-input>
+            </b-form-group>
+
             <b-form-group id="payor-group" label="Payor:" label-for="input-payor">
               <b-form-input
                 id="input-payor"
@@ -97,6 +105,8 @@
                 :options="newTransModalForm.paymentTypeOptions"
                 :aria-describedby="ariaDescribedby"
                 name="radio-inline"
+                size="lg"
+                plain
               ></b-form-radio-group>
             </b-form-group>
             <div v-if="newTransModalForm.selectedPaymentType == 'check'">
@@ -132,11 +142,35 @@
           </b-form>
         </div>
         <div class="newTransModal__line">
-          <b-button class="mb-1" variant="primary" size="sm">
+          <b-button
+            @click="$bvModal.show('insertProdModal')"
+            class="mb-1"
+            variant="primary"
+            size="sm"
+          >
             <font-awesome-icon :icon="['fas', 'arrow-down']" />
             Insert Product
           </b-button>
-          <b-table striped hover :items="newTransModalForm.productLine"></b-table>
+          <b-table
+            striped
+            hover
+            :items="newReceiptSelectedProd"
+            :fields="newReceiptTbleFields"
+          >
+            <template #cell(amount)="row">
+              <b-input
+                title="insert"
+                class="w-25"
+                v-model="newTransModalForm.productLine[row.index].amount"
+              />
+            </template>
+
+            <template #cell(action)="row">
+              <b-button title="Remove product from the list" variant="danger" size="sm">
+                <font-awesome-icon :icon="['fas', 'trash']" />
+              </b-button>
+            </template>
+          </b-table>
         </div>
       </div>
 
@@ -145,12 +179,50 @@
           <b-button variant="primary" class="float-right ml-1">
             <font-awesome-icon :icon="['fas', 'floppy-disk']" /> Save Receipt
           </b-button>
+          <b-button @click="$bvModal.hide('newTransModal')" class="float-right">
+            <font-awesome-icon :icon="['fas', 'xmark']" /> Close
+          </b-button>
+        </div>
+      </template>
+    </b-modal>
+
+    <b-modal
+      id="insertProdModal"
+      class="insertProdModal"
+      title="Insert Product"
+      size="medium"
+      no-close-on-backdrop
+    >
+      <b-input
+        placeholder="Search . . ."
+        size="sm"
+        v-model="insertProductModalData.searchProd"
+      />
+      <b-table
+        class="mt-3"
+        striped
+        hover
+        :fields="insertProductModalData.insertProdFields"
+        :items="insertProductModalData.products"
+        small
+      >
+        <template #cell(actions)="row">
+          <b-button size="sm" variant="info"
+            ><font-awesome-icon :icon="['fas', 'plus']" />
+          </b-button>
+        </template>
+      </b-table>
+
+      <template #modal-footer>
+        <div class="w-100">
           <b-button
-            @click="$bvModal.hide('newTransModal')"
-            variant="danger"
             class="float-right"
+            @click="$bvModal.hide('insertProdModal')"
+            size="sm"
+            variant="primary"
           >
-            <font-awesome-icon :icon="['fas', 'xmark']" /> Cancel
+            Done
+            <font-awesome-icon :icon="['fas', 'check']" />
           </b-button>
         </div>
       </template>
@@ -195,18 +267,18 @@ export default {
         { key: "action", label: "Actions" },
       ],
 
-      selectedStatus: "a",
+      selectedStatus: "dr",
       optionStatus: [
-        { value: "a", text: "Filter by Status" },
-        { value: "b", text: "DR" },
-        { value: "c", text: "PR" },
-        { value: "d", text: "ALL" },
+        { value: null, text: "ALL" },
+        { value: "dr", text: "DR" },
+        { value: "pr", text: "PR" },
       ],
 
       dateFrom: "",
       dateTo: "",
 
       newTransModalForm: {
+        seriesNo: "", //String(num).padStart(8, "0");
         payorName: "",
         selectedPaymentType: "cash",
         paymentTypeOptions: [
@@ -216,7 +288,23 @@ export default {
         draweeBank: "",
         number: "",
         dateCheck: "",
-        productLine: [{ prodName: "RICE", amount: 2000 }],
+        productLine: [{ prodId: 1, prodName: "RICE", amount: 2000 }],
+      },
+
+      newReceiptSelectedProd: [{ prodId: 1, prodName: "RICE", amount: 2000 }],
+      newReceiptTbleFields: [
+        { key: "prodName", label: "Product Name" },
+        { key: "amount", label: "Amount" },
+        { key: "action", label: "Actions" },
+      ],
+
+      insertProductModalData: {
+        products: [{ prodId: 1, prodName: "RICE" }],
+        insertProdFields: [
+          { key: "prodName", label: "Product Name" },
+          { key: "actions", label: "Action" },
+        ],
+        searchProd: "",
       },
     };
   },
@@ -227,7 +315,9 @@ export default {
     },
   },
 
-  created() {},
+  created() {
+    console.log(JSON.stringify(this.arEntries));
+  },
   computed: {
     getBarIsClicked() {
       return this.$store.state.dashboard.barIsClicked;
@@ -243,11 +333,6 @@ export default {
   box-shadow: 1px 1px 27px -14px rgba(0, 0, 0, 0.53);
   -webkit-box-shadow: 1px 1px 27px -14px rgba(0, 0, 0, 0.53);
   -moz-box-shadow: 1px 1px 27px -14px rgba(0, 0, 0, 0.53);
-
-  &__action_btn {
-    font-size: 12px;
-    border-radius: 20px;
-  }
 
   &__table {
     font-size: 12px !important;
