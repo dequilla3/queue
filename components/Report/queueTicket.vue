@@ -9,7 +9,9 @@
       <p class="subText">PLEASE WAIT FOR YOUR NUMBER</p>
       <p class="mainText">{{ reportState.windowDesc }}</p>
       <p class="mainTextNumber">
-        {{ reportState.windowCode + String(reportState.curNum).padStart(3, "0") }}
+        {{
+          reportState.windowCode + String(reportState.curNum).padStart(3, "0")
+        }}
       </p>
       <hr />
       <p class="mainTextDate">{{ dateNow }}</p>
@@ -50,7 +52,7 @@ export default {
   font-family: Arial, Helvetica, sans-serif;
   max-width: 200px;
   padding: 0px;
-  margin: 50px;
+  margin: 20px;
 }
 
 .ticket__header {
@@ -73,11 +75,11 @@ export default {
 }
 
 .subText {
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .mainText {
-  font-size: 14px;
+  font-size: 18px;
   font-weight: bold;
 }
 
