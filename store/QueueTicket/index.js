@@ -71,7 +71,7 @@ export default {
         },
       ],
       reportState: {
-        curNum: "000",
+        curNum: "023",
         windowCode: "M",
         windowDesc: "WINDOW 1"
       }

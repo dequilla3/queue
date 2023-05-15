@@ -2,7 +2,7 @@
   <div>
     <div class="login">
       <p class="login__header-text mb-5">
-        <img src="../assets/img/logo.png" class="logo" /> PCIC XI
+        <img src="../assets/img/logo.png" class="logo" alt="" /> PCIC XI
       </p>
 
       <b-form class="login__form" @submit="userLogin">

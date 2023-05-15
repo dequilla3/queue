@@ -23,7 +23,7 @@
           <hr />
           <b-overlay :show="showOverlayNext">
             <b-button
-              :disabled="!audioDone"
+              :disabled="!audioDone || !donePost"
               @click="onNext()"
               class="counter_container__actions__btn bg-success"
             >
@@ -33,7 +33,7 @@
           </b-overlay>
 
           <b-button
-            :disabled="!audioDone"
+            :disabled="!audioDone || !donePost"
             @click="onRecall()"
             class="counter_container__actions__btn bg-warning"
           >
@@ -42,7 +42,7 @@
           </b-button>
 
           <b-button
-            :disabled="!audioDone"
+            :disabled="!audioDone || !donePost"
             @click="onHold()"
             class="counter_container__actions__btn bg-default"
           >
@@ -51,7 +51,7 @@
           </b-button>
 
           <b-button
-            :disabled="!audioDone"
+            :disabled="!audioDone || !donePost"
             @click="onInsertHeldNum()"
             class="counter_container__actions__btn bg-info"
             ><font-awesome-icon class="icn" icon="fa-solid fa-arrow-down" />
@@ -60,7 +60,7 @@
 
           <b-overlay :show="showOverlayNext && getRole == 'w1'">
             <b-button
-              :disabled="!audioDone"
+              :disabled="!audioDone || !donePost"
               @click="doPostQueue()"
               v-show="getRole == 'w1'"
               class="counter_container__actions__btn bg-default"
@@ -85,12 +85,7 @@
               aria-label="Enter text here..."
             ></b-form-input>
           </b-input-group>
-          <b-table
-            sticky-header
-            hover
-            :items="filteredHold()"
-            :fields="tblHeldNumFields"
-          >
+          <b-table sticky-header hover :items="filteredHold()" :fields="tblHeldNumFields">
             <template #cell(queue_num)="row">
               <h2>{{ row.item.queue_num }}</h2>
             </template>
@@ -151,6 +146,7 @@ export default {
   },
   data() {
     return {
+      donePost: true,
       lblSearch: "",
 
       audioDone: true,
@@ -270,10 +266,12 @@ export default {
     async postOngoing() {
       this.postByStatus("ONGOING", "PENDING").catch((err) => {
         this.showAlert(err, "danger");
+        this.donePost = true;
       });
     },
 
     async postByStatus(newStatus, oldStatus) {
+      this.donePost = false;
       return await this.fetchAllQueueList().then(() => {
         const queuedByOldStatus = this.getQueueByStatus(oldStatus);
         if (queuedByOldStatus.length > 0) {
@@ -284,6 +282,7 @@ export default {
           if (oldStatus == "PENDING") {
             this.showAlert(`No ${oldStatus} queue!`, "danger");
             this.ongoing = [];
+            this.donePost = true;
           }
           this.showOverlayNext = false;
         }
@@ -302,6 +301,7 @@ export default {
           if (newStatus == "ONGOING") {
             this.playAudio();
             this.ongoing = this.getOngoing[0];
+            this.donePost = true;
           }
           this.showOverlayNext = false;
         })
@@ -311,10 +311,7 @@ export default {
     },
 
     async fetchAllQueueList() {
-      return await this.$store.dispatch(
-        "counter/getAllQueueList",
-        localStorage.role
-      );
+      return await this.$store.dispatch("counter/getAllQueueList", localStorage.role);
     },
 
     getQueueNum() {
@@ -348,22 +345,25 @@ export default {
     },
 
     async doPostQueue() {
-      //TODO: need to refactor
+      if (this.ongoing.length < 1) {
+        this.showAlert("There's no ongoing transaction.", "danger");
+        return;
+      }
+
       this.showOverlayNext = true;
+
       await axios({
         method: "POST",
         url: `${this.$axios.defaults.baseURL}/queuing/generateQueueNum`,
         data: {
-          trans_header: {
-            winNum: "w5",
-            transType: "t1",
-            date_queue: moment().format(),
-            gender: this.ongoing.gender,
-          },
+          winNum: localStorage.role,
+          transType: "t1",
+          date_queue: moment().format(),
+          gender: this.ongoing.gender,
         },
       })
         .then((res) => {
-          /*SET TICKET STATE*/
+          /*SET TICKET DETAILS*/
           this.$store.commit("queueticket/SET_REPORTSTATE", {
             curNum: res.data[0] ? res.data[0].queue_num : 0,
             windowCode: "T",
@@ -373,13 +373,14 @@ export default {
           this.$nextTick(() => {
             this.showOverlayNext = false;
             this.$bvModal.hide("held_modal");
+
             setTimeout(() => {
               window.print();
             }, 500);
           });
         })
         .catch((err) => {
-          console.log(err);
+          this.showAlert(err, "danger");
         });
     },
   },

@@ -9,9 +9,7 @@
       <p class="subText">PLEASE WAIT FOR YOUR NUMBER</p>
       <p class="mainText">{{ reportState.windowDesc }}</p>
       <p class="mainTextNumber">
-        {{
-          reportState.windowCode + String(reportState.curNum).padStart(3, "0")
-        }}
+        {{ reportState.windowCode + String(reportState.curNum).padStart(3, "0") }}
       </p>
       <hr />
       <p class="mainTextDate">{{ dateNow }}</p>
@@ -48,8 +46,10 @@ export default {
 };
 </script>
 <style scoped>
-.ticket {
+* {
   font-family: Arial, Helvetica, sans-serif;
+}
+.ticket {
   max-width: 200px;
   padding: 0px;
   margin: 20px;

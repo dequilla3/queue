@@ -161,12 +161,17 @@
               <b-input
                 title="insert"
                 class="w-25"
-                v-model="newTransModalForm.productLine[row.index].amount"
+                v-model="newReceiptSelectedProd[row.index].amount"
               />
             </template>
 
             <template #cell(action)="row">
-              <b-button title="Remove product from the list" variant="danger" size="sm">
+              <b-button
+                @click="removeSelectedProduct(row.item)"
+                title="Remove product from the list"
+                variant="danger"
+                size="sm"
+              >
                 <font-awesome-icon :icon="['fas', 'trash']" />
               </b-button>
             </template>
@@ -207,7 +212,7 @@
         small
       >
         <template #cell(actions)="row">
-          <b-button size="sm" variant="info"
+          <b-button @click="insertProduct(row.item)" size="sm" variant="info"
             ><font-awesome-icon :icon="['fas', 'plus']" />
           </b-button>
         </template>
@@ -278,7 +283,7 @@ export default {
       dateTo: "",
 
       newTransModalForm: {
-        seriesNo: "", //String(num).padStart(8, "0");
+        seriesNo: "",
         payorName: "",
         selectedPaymentType: "cash",
         paymentTypeOptions: [
@@ -288,10 +293,9 @@ export default {
         draweeBank: "",
         number: "",
         dateCheck: "",
-        productLine: [{ prodId: 1, prodName: "RICE", amount: 2000 }],
       },
 
-      newReceiptSelectedProd: [{ prodId: 1, prodName: "RICE", amount: 2000 }],
+      newReceiptSelectedProd: [],
       newReceiptTbleFields: [
         { key: "prodName", label: "Product Name" },
         { key: "amount", label: "Amount" },
@@ -313,11 +317,22 @@ export default {
     onNewTrans() {
       this.$bvModal.show("newTransModal");
     },
+
+    insertProduct(item) {
+      this.newReceiptSelectedProd.push({
+        prodId: item.prodId,
+        prodName: item.prodName,
+        amount: 0.0,
+      });
+      this.insertProductModalData.products.splice(item, 1);
+    },
+
+    removeSelectedProduct(item) {
+      this.newReceiptSelectedProd.splice(item, 1);
+    },
   },
 
-  created() {
-    console.log(JSON.stringify(this.arEntries));
-  },
+  created() {},
   computed: {
     getBarIsClicked() {
       return this.$store.state.dashboard.barIsClicked;

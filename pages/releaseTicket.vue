@@ -103,7 +103,7 @@ export default {
         },
       })
         .then((res) => {
-          /*SET TICKET STATE*/
+          /*SET TICKET DETAILS*/
           this.$store.commit("queueticket/SET_REPORTSTATE", {
             curNum: res.data[0].queue_num,
             windowCode: this.wind.windowCode,
@@ -123,6 +123,8 @@ export default {
           console.log(err);
         });
     },
+
+    setReportState() {},
   },
 
   beforeCreate() {
