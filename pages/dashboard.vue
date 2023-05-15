@@ -5,20 +5,27 @@
       <div class="dashboard__content">
         <div class="dashboard__vid">
           <video loop controls>
+            <track
+              label="English"
+              kind="subtitles"
+              srclang="en"
+              src="captions/vtt/sintel-en.vtt"
+              default
+            />
             <source src="gagss.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
-          <!-- <img :src="logo" class="watermark" /> -->
         </div>
         <div class="dashboard__queue">
           <div class="dashboard__queue__logo">
-            <img :src="logo" class="mr-2" />
+            <img :src="logo" class="mr-2" alt="" />
             <p class="dashboard__queue__logo__title">
               PHILIPPINE CROP <br />
               INSURANCE CORPORATION REGION XI
             </p>
           </div>
           <table>
+            <caption></caption>
             <thead>
               <tr>
                 <th>COUNTER</th>
@@ -37,7 +44,9 @@
         </div>
       </div>
       <div class="bottom_section" @dblclick="editRunningText">
-        <marquee class="bottom_section__running_text">{{ runningText }}</marquee>
+        <div class="marquee">
+          <p>{{ runningText }}</p>
+        </div>
         <div class="bottom_section__time">
           {{ dateNow.toString().toUpperCase() }}
         </div>
@@ -66,9 +75,8 @@
 <script>
 import moment from "moment";
 import logo from "../assets/img/logo.png";
-import io from "socket.io-client";
 import logout from "../components/logout.vue";
-import { Howl, Howler } from "howler";
+import { Howl } from "howler";
 
 const sound = new Howl({
   src: ["attention.mp3"],
@@ -160,7 +168,6 @@ export default {
         });
         let newQnum = ongoing[0] ? ongoing[0].queue_num : 0;
         if (newQnum != val.qNum && newQnum != 0) {
-          // sound.play();
           val.qNum = newQnum;
         }
       });
@@ -180,10 +187,7 @@ export default {
     clearInterval(this.roleCheckInterval);
   },
 
-  created() {
-    // let serverLink = `${process.env.baseURL}`;
-    // const socket = io.connect(serverLink);
-  },
+  created() {},
 
   mounted() {
     this.intervalOngoing = setInterval(() => {
@@ -305,7 +309,7 @@ td {
   display: flex;
   &__running_text {
     font-size: 30px;
-    padding-top: 2vh;
+    width: 100vw;
   }
   &__time {
     background: white;
