@@ -2,7 +2,7 @@
   <div>
     <div class="release_ticket dontPrint">
       <logout mode="light" pos="left top-1" />
-      <div class="logo"><img src="../assets/img/logo.png" /></div>
+      <div class="logo"><img src="../assets/img/logo.png" alt="" /></div>
       <div class="release_ticket__header">WELCOME</div>
       <div class="release_ticket__sub_header">PLEASE SELECT TRANSACTION</div>
       <hr />

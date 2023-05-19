@@ -1,7 +1,7 @@
 <template>
   <div class="ticket">
     <div class="ticket__header">
-      <img class="logoTicket mr-2" src="../../assets/img/logo.png" />
+      <img class="logoTicket mr-2" src="../../assets/img/logo.png" alt="" />
       <p class="headerText">Philippine Crop Insurance Corporation Region XI</p>
     </div>
     <hr />

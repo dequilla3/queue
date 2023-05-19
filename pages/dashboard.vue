@@ -4,7 +4,7 @@
     <div class="dashboard">
       <div class="dashboard__content">
         <div class="dashboard__vid">
-          <video loop controls>
+          <video loop autoplay muted>
             <track
               label="English"
               kind="subtitles"
@@ -12,7 +12,7 @@
               src="captions/vtt/sintel-en.vtt"
               default
             />
-            <source src="gagss.mp4" type="video/mp4" />
+            <source src="vid1.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         </div>
@@ -77,6 +77,7 @@ import moment from "moment";
 import logo from "../assets/img/logo.png";
 import logout from "../components/logout.vue";
 import { Howl } from "howler";
+import io from "socket.io-client";
 
 const sound = new Howl({
   src: ["attention.mp3"],
@@ -187,7 +188,15 @@ export default {
     clearInterval(this.roleCheckInterval);
   },
 
-  created() {},
+  // created() {
+  //   let serverLink = `${process.env.baseURL}`;
+  //   const socket = io.connect(serverLink, {
+  //     secure: true,
+  //   });
+  //   socket.on("dashboard", () => {
+  //     console.log("socket connected to server?", socket.connected);
+  //   });
+  // },
 
   mounted() {
     this.intervalOngoing = setInterval(() => {
