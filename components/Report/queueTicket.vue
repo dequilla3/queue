@@ -4,15 +4,15 @@
       <img class="logoTicket mr-2" src="../../assets/img/logo.png" />
       <p class="headerText">Philippine Crop Insurance Corporation Region XI</p>
     </div>
-    <hr />
-    <div class="centered">
-      <p class="subText">PLEASE WAIT FOR YOUR NUMBER</p>
-      <p class="mainText">{{ reportState.windowDesc }}</p>
-      <p class="mainTextNumber">
-        {{ reportState.windowCode + String(reportState.curNum).padStart(3, "0") }}
-      </p>
-      <hr />
-      <p class="mainTextDate">{{ dateNow }}</p>
+    <div class="body">
+      <div class="subText">PLEASE WAIT FOR YOUR NUMBER</div>
+      <div class="mainText">{{ reportState.windowDesc }}</div>
+      <div class="mainTextNumber">
+        {{
+          reportState.windowCode + String(reportState.curNum).padStart(3, "0")
+        }}
+      </div>
+      <div class="mainTextDate">{{ dateNow }}</div>
     </div>
   </div>
 </template>
@@ -65,8 +65,8 @@ export default {
 }
 
 .logoTicket {
-  width: 40px;
-  height: 40px;
+  width: 35px;
+  height: 30px;
 }
 
 .headerText {
@@ -75,16 +75,16 @@ export default {
 }
 
 .subText {
-  font-size: 14px;
+  font-size: 10px;
 }
 
 .mainText {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
 }
 
 .mainTextNumber {
-  font-size: 60px;
+  font-size: 50px;
   font-weight: bold;
 }
 
@@ -94,5 +94,9 @@ export default {
 }
 @page {
   size: auto;
+}
+
+.body {
+  text-align: center;
 }
 </style>

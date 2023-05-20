@@ -10,64 +10,77 @@
         </p>
       </div>
       <div class="title">
-        <h6 class="pt-3 pb-3 bt2">
+        <h6 class="pt-2 pb-2 bb1 f14">
           <b>ACKNOWLEDGEMENT RECEIPT</b>
         </h6>
-        <h4 class="bt2 pb-2">No. 0001</h4>
-        <p class="">Date: {{ new Date().toLocaleDateString() }}</p>
+        <h4 class="bb1 pb-1">No. 0001</h4>
+        <p class="f12">Date: {{ new Date().toLocaleDateString() }}</p>
       </div>
     </div>
 
     <div class="body_section">
-      <div class="b2 pt-1 pb-1 pl-1 payor">
+      <div class="bb1 pt-1 pb-1 pl-1 payor">
         PAYOR:
         <h4 class="ml-2">KIM ARIEL DEQUILLA</h4>
       </div>
       <div>
         <table class="">
           <tr>
-            <th>PRODUCT LINE</th>
-            <th>AMOUNT</th>
+            <th
+              style="
+                border-bottom: 1px solid #000000;
+                border-right: 1px solid #000000;
+              "
+            >
+              PRODUCT LINE
+            </th>
+            <th style="border-bottom: 1px solid #000000">AMOUNT</th>
           </tr>
+
           <tr v-for="item in productLine" :key="item.index">
-            <td :class="`pl-2 ${item.class}`">{{ item.prodName }}</td>
-            <td :class="`pl-2 ${item.class}`">{{ item.price }}</td>
+            <td :class="`pl-3 br1 ${item.class}`">
+              {{ item.prodName }}
+            </td>
+
+            <td :class="`pl-3 ${item.class}`">
+              {{ item.price }}
+            </td>
           </tr>
         </table>
       </div>
     </div>
 
     <div class="footer_section">
-      <div class="b2 pl-1"><b>AMOUNT IN WORDS</b></div>
-      <div class="b2 pt-2 pb-1">
-        <div class="text-center">
-          <b class="f16">{{ getNumToWord }}</b>
-        </div>
+      <div class="pl-1 bb1"><b>AMOUNT IN WORDS</b></div>
+      <div class="text-center bb1">
+        <b class="f16">{{ getNumToWord }}</b>
       </div>
 
-      <div class="payment_type">
-        <div class="payment_type_group">
+      <div class="payment_type bb1">
+        <div class="payment_type_group br1">
           <div class="payment_type_select">
-            <div class="payment_type_select_box mr-2 selected_payment" />
+            <div class="payment_type_select_box mr-2">
+              <font-awesome-icon icon="fa-solid fa-check" />
+            </div>
             <b>CASH</b>
           </div>
           <div class="payment_type_select">
-            <div class="payment_type_select_box mr-2" />
+            <div class="payment_type_select_box mr-2"></div>
             <b>CHECK</b>
           </div>
         </div>
 
         <div class="payment_type_table">
-          <div class="payment_type_tr">
-            <div class="bt2 pb-1"><b>Drawee Bank</b></div>
+          <div class="payment_type_tr br1">
+            <div class="bb1 pb-1"><b>Drawee Bank</b></div>
+            <div class="payment_type_td"></div>
+          </div>
+          <div class="payment_type_tr br1">
+            <div class="bb1 pb-1"><b>Number</b></div>
             <div class="payment_type_td"></div>
           </div>
           <div class="payment_type_tr">
-            <div class="bt2 pb-1"><b>Number</b></div>
-            <div class="payment_type_td"></div>
-          </div>
-          <div class="payment_type_tr">
-            <div class="bt2 pb-1"><b>Date</b></div>
+            <div class="bb1 pb-1"><b>Date</b></div>
             <div class="payment_type_td"></div>
           </div>
         </div>
@@ -91,7 +104,7 @@ export default {
         {
           prodName: "RICE",
           price: 2000,
-          class: "",
+          class: "bb1",
         },
       ],
     };
@@ -103,11 +116,11 @@ export default {
 
       for (let i = 0; i < 8 - prodLen; i++) {
         console.log(i);
-        if (i == 8) {
+        if (i == 6) {
           this.productLine.push({
             prodName: "TOTAL",
             price: "2000",
-            class: "font-weight-bold",
+            class: "font-weight-bold bt1",
           });
         } else {
           this.productLine.push({
@@ -143,13 +156,8 @@ export default {
   height: 100%;
 }
 .report {
-  /* position: absolute; */
-  /* margin: 0.5in; */
-  margin-left: 100px;
-  border: 2px solid #000000;
-  width: 5.5in;
-  height: 7.5in;
-  transform: rotate(-0.25turn);
+  margin: 0.5in 24px 24px 24px;
+  border: 1px solid #000000;
 }
 
 .head-section {
@@ -157,28 +165,31 @@ export default {
 }
 
 .logo {
-  border: 2px solid #000000;
+  border-bottom: 1px solid #000000;
+  border-right: 1px solid #000000;
   display: flex;
   padding: 5px;
   width: 50%;
 }
 
 .title {
-  border: 2px solid #000000;
+  border-bottom: 1px solid #000000;
   width: 50%;
   text-align: center;
 }
-
+.f12 {
+  font-size: 12px;
+}
 .f13 {
   font-size: 13px;
 }
 
-.f16 {
-  font-size: 16px;
+.f14 {
+  font-size: 14px;
 }
 
-.bt2 {
-  border-bottom: 2px solid #000000;
+.f16 {
+  font-size: 16px;
 }
 
 img {
@@ -187,29 +198,27 @@ img {
 
   /* padding: 20px; */
 }
-.b2 {
-  border: 2px solid #000000;
-}
 
 .sub-text {
   font-size: 10px;
 }
 
 table {
-  border: 2px solid #000000;
+  border-bottom: 1px solid #000000;
   width: 100%;
 }
 th {
-  border: 2px solid #000000;
+  /* border: 2px solid #000000; */
   padding: 10px 5px;
+  font-size: 12px;
 }
 td {
-  border: 2px solid #000000;
+  /* border-bottom: 1px solid #000000; */
   /* color: transparent; */
 }
 
 .payment_type {
-  border: 2px solid #000000;
+  /* border: 2px solid #000000; */
   display: flex;
 }
 
@@ -218,12 +227,13 @@ td {
 }
 
 .payment_type_select_box {
-  border: 2px solid #000000;
+  border: 1px solid #000000;
   height: 18px;
   width: 25px;
+  text-align: center;
 }
 .payment_type_group {
-  border: 2px solid #000000;
+  /* border: 2px solid #000000; */
   padding: 10px;
   width: 200px;
 }
@@ -233,7 +243,7 @@ td {
   width: 100%;
 }
 .payment_type_tr {
-  border: 2px solid #000000;
+  /* border: 2px solid #000000; */
   width: 100%;
   text-align: center;
 }
@@ -246,15 +256,26 @@ td {
   border: 2px solid #000000;
 }
 
-.selected_payment {
-  border: 9px solid #000000;
-}
-
 .signature {
   text-align: center;
 }
 
 .co {
   padding-top: 35px;
+}
+
+.br1 {
+  border-right: 1px solid #000000;
+}
+.bb1 {
+  border-bottom: 1px solid #000000;
+}
+
+.bt1 {
+  border-top: 1px solid #000000;
+}
+
+.bl1 {
+  border-left: 1px solid #000000;
 }
 </style>

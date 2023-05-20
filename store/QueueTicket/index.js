@@ -2,9 +2,9 @@ export default {
   state() {
     return {
       reportState: {
-        curNum: "",
-        windowCode: "",
-        windowDesc: "",
+        curNum: "1",
+        windowCode: "M",
+        windowDesc: "WINDOW 1",
       },
     };
   },
