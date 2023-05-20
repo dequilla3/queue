@@ -4,7 +4,7 @@
     <div class="dashboard">
       <div class="dashboard__content">
         <div class="dashboard__vid">
-          <video loop controls>
+          <video loop autoplay muted>
             <track
               label="English"
               kind="subtitles"
@@ -12,7 +12,7 @@
               src="captions/vtt/sintel-en.vtt"
               default
             />
-            <source src="gagss.mp4" type="video/mp4" />
+            <source src="vid1.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         </div>
@@ -162,15 +162,17 @@ export default {
 
     //TODO: play sound on dasboard
     async fetchQueueList(val) {
-      await this.$store.dispatch("counter/getAllQueueList", val.wCode).then((res) => {
-        let ongoing = res.data.filter(function (val) {
-          return val.status == "ONGOING";
+      await this.$store
+        .dispatch("counter/getAllQueueList", val.wCode)
+        .then((res) => {
+          let ongoing = res.data.filter(function (val) {
+            return val.status == "ONGOING";
+          });
+          let newQnum = ongoing[0] ? ongoing[0].queue_num : 0;
+          if (newQnum != val.qNum && newQnum != 0) {
+            val.qNum = newQnum;
+          }
         });
-        let newQnum = ongoing[0] ? ongoing[0].queue_num : 0;
-        if (newQnum != val.qNum && newQnum != 0) {
-          val.qNum = newQnum;
-        }
-      });
     },
   },
 
