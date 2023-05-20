@@ -48,9 +48,9 @@ export default {
   },
 
   axios: {
-    baseUrl: "http://172.16.28.15:5100",
+    baseUrl: "http://192.168.1.163:5100",
   },
   env: {
-    baseURL: "http://172.16.28.15:5100",
+    baseUrl: "http://192.168.1.163:5100",
   },
 };
