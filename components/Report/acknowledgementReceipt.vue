@@ -143,10 +143,13 @@ export default {
   height: 100%;
 }
 .report {
-  margin: 0.5in;
+  /* position: absolute; */
+  /* margin: 0.5in; */
+  margin-left: 100px;
   border: 2px solid #000000;
   width: 5.5in;
   height: 7.5in;
+  transform: rotate(-0.25turn);
 }
 
 .head-section {
