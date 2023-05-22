@@ -163,15 +163,17 @@ export default {
 
     //TODO: play sound on dasboard
     async fetchQueueList(val) {
-      await this.$store.dispatch("counter/getAllQueueList", val.wCode).then((res) => {
-        let ongoing = res.data.filter(function (val) {
-          return val.status == "ONGOING";
+      await this.$store
+        .dispatch("counter/getAllQueueList", val.wCode)
+        .then((res) => {
+          let ongoing = res.data.filter(function (val) {
+            return val.status == "ONGOING";
+          });
+          let newQnum = ongoing[0] ? ongoing[0].queue_num : 0;
+          if (newQnum != val.qNum && newQnum != 0) {
+            val.qNum = newQnum;
+          }
         });
-        let newQnum = ongoing[0] ? ongoing[0].queue_num : 0;
-        if (newQnum != val.qNum && newQnum != 0) {
-          val.qNum = newQnum;
-        }
-      });
     },
   },
 
