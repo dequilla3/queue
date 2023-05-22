@@ -1,10 +1,10 @@
 <template>
   <div class="sideBar">
     <ul>
-      <li class="brand">
-        <img class="brand__img" src="../assets/img/logo.png" />
+      <!-- <li class="brand">
+        <img class="brand__img" src="../assets/img/logo.png" alt="" />
         <label>PCIC XI</label>
-      </li>
+      </li> -->
       <hr />
       <li
         :class="`icon ${item.isActive ? 'active' : ''}`"

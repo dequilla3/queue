@@ -189,6 +189,7 @@ export default {
 
       let role = results.user_role;
       localStorage.role = role;
+      localStorage.user_id = results.user_id;
 
       this.$nextTick(() => {
         switch (role) {

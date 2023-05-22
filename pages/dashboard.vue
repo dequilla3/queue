@@ -77,6 +77,7 @@ import moment from "moment";
 import logo from "../assets/img/logo.png";
 import logout from "../components/logout.vue";
 import { Howl } from "howler";
+import io from "socket.io-client";
 
 const sound = new Howl({
   src: ["attention.mp3"],
@@ -189,7 +190,15 @@ export default {
     clearInterval(this.roleCheckInterval);
   },
 
-  created() {},
+  // created() {
+  //   let serverLink = `${process.env.baseURL}`;
+  //   const socket = io.connect(serverLink, {
+  //     secure: true,
+  //   });
+  //   socket.on("dashboard", () => {
+  //     console.log("socket connected to server?", socket.connected);
+  //   });
+  // },
 
   mounted() {
     this.intervalOngoing = setInterval(() => {

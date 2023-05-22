@@ -45,9 +45,7 @@ export default {
     },
   },
 
-  mounted() {
-    console.log(this.pos);
-  },
+  mounted() {},
 };
 </script>
 <style lang="scss" scoped>

@@ -2,6 +2,7 @@
   <div>
     <sidebar />
     <div class="dataentry">
+      <b-overlay :show="isLoading" rounded="sm" no-wrap />
       <h5 class="font-weight-bold">ACKNOWLEDGEMENT RECEIPT</h5>
       <br />
       <b-button variant="primary" @click="onNewTrans()">
@@ -38,13 +39,14 @@
 
       <b-table
         class="dataentry__table mt-4"
-        sticky-header
         hover
         :items="arEntries"
         :fields="arEntriesTblFields"
+        :per-page="perPage"
+        :current-page="currentPage"
       >
         <template #cell(dateTrans)="row">
-          {{ row.item.dateTrans.toLocaleDateString() }}
+          {{ row.item.dateTrans }}
         </template>
 
         <template #cell(action)="row">
@@ -53,16 +55,24 @@
             variant="success"
             v-show="row.item.docstatus == 'DR'"
             title="Process Transaction"
+            size="sm"
+            @click="process(row.item)"
           >
             Process
             <font-awesome-icon icon="fa-solid fa-cogs" />
           </b-button>
-          <b-button class="mb-1" title="View full details" variant="info">
+          <b-button size="sm" class="mb-1" title="View full details" variant="info">
             View
             <font-awesome-icon icon="fa-solid fa-eye" />
           </b-button>
         </template>
       </b-table>
+
+      <b-pagination
+        v-model="currentPage"
+        :total-rows="rows"
+        :per-page="perPage"
+      ></b-pagination>
     </div>
 
     <b-modal
@@ -74,7 +84,7 @@
     >
       <div class="newTransModal__container">
         <div class="newTransModal__form">
-          <b-form @submit="">
+          <b-form>
             <b-form-group
               id="seriesno-group"
               label="Series No.:"
@@ -94,7 +104,7 @@
                 id="input-payor"
                 v-model="newTransModalForm.payorName"
                 type="text"
-                placeholder="Enter payor full name"
+                placeholder="Enter payor name"
                 required
               ></b-form-input>
             </b-form-group>
@@ -109,7 +119,8 @@
                 plain
               ></b-form-radio-group>
             </b-form-group>
-            <div v-if="newTransModalForm.selectedPaymentType == 'check'">
+
+            <div v-if="newTransModalForm.selectedPaymentType == 'CHECK'">
               <b-form-group
                 id="drawee-group"
                 label="Drawee Bank:"
@@ -161,6 +172,8 @@
               <b-input
                 title="insert"
                 class="w-25"
+                placeholder="0.00"
+                type="number"
                 v-model="newReceiptSelectedProd[row.index].amount"
               />
             </template>
@@ -181,7 +194,7 @@
 
       <template #modal-footer>
         <div class="w-100">
-          <b-button variant="primary" class="float-right ml-1">
+          <b-button @click="onsaveReceipt()" variant="primary" class="float-right ml-1">
             <font-awesome-icon :icon="['fas', 'floppy-disk']" /> Save Receipt
           </b-button>
           <b-button @click="$bvModal.hide('newTransModal')" class="float-right">
@@ -196,7 +209,6 @@
       class="insertProdModal"
       title="Insert Product"
       size="medium"
-      no-close-on-backdrop
     >
       <b-input
         placeholder="Search . . ."
@@ -232,12 +244,26 @@
         </div>
       </template>
     </b-modal>
+
+    <b-alert
+      :show="alert.showAlert"
+      dismissible
+      :variant="alert.variant"
+      @dismissed="alert.showAlert = null"
+      id="alert-message"
+    >
+      <font-awesome-icon
+        :icon="alert.variant == 'success' ? 'check-circle' : 'exclamation'"
+        class="alert-icon mr-1"
+      />
+      {{ alert.message }}
+    </b-alert>
   </div>
 </template>
 
 <script>
 import sidebar from "../components/sidebar.vue";
-import moment from "moment";
+import axios from "axios";
 
 export default {
   components: {
@@ -246,26 +272,25 @@ export default {
 
   data() {
     return {
-      arEntries: [
-        {
-          id: 1,
-          docnum: "001",
-          docstatus: "DR",
-          payor: "John Doe",
-          transType: "CASH",
-          collectingOfficer: "Juan Dela Cruz",
-          checkDetails: { draweeBank: "", number: "", date: "" },
-          prodLine: [{ id: 1, prodName: "RICE", amount: 2000 }],
-          totalAmt: 2000,
-          dateTrans: new Date(),
-        },
-      ],
+      isLoading: false,
+      alert: {
+        showAlert: 0,
+        dismissSecs: 0,
+        variant: "success",
+        message: "",
+      },
+
+      perPage: 8,
+      currentPage: 1,
+      arEntries: [],
 
       arEntriesTblFields: [
         { key: "docnum", label: "Document No." },
         { key: "docstatus", label: "Status" },
         { key: "payor", label: "Payor" },
         { key: "transType", label: "Transaction Type" },
+        { key: "checkNo", label: "Check No" },
+        { key: "checkDate", label: "Check Date" },
         { key: "collectingOfficer", label: "Collecting Officer" },
         { key: "totalAmt", label: "Total Amount" },
         { key: "dateTrans", label: "Date Transaction" },
@@ -285,14 +310,14 @@ export default {
       newTransModalForm: {
         seriesNo: "",
         payorName: "",
-        selectedPaymentType: "cash",
+        selectedPaymentType: "CASH",
         paymentTypeOptions: [
-          { text: "CASH", value: "cash" },
-          { text: "CHECK", value: "check" },
+          { text: "CASH", value: "CASH" },
+          { text: "CHECK", value: "CHECK" },
         ],
         draweeBank: "",
         number: "",
-        dateCheck: "",
+        dateCheck: null,
       },
 
       newReceiptSelectedProd: [],
@@ -303,39 +328,275 @@ export default {
       ],
 
       insertProductModalData: {
-        products: [{ prodId: 1, prodName: "RICE" }],
+        products: [],
         insertProdFields: [
           { key: "prodName", label: "Product Name" },
           { key: "actions", label: "Action" },
         ],
         searchProd: "",
       },
+
+      seriesNo: "",
     };
   },
 
   methods: {
+    showAlert(message, variant) {
+      this.alert = {
+        showAlert: 5,
+        dismissSecs: 2,
+
+        variant,
+        message,
+      };
+    },
+
     onNewTrans() {
+      this.newReceiptSelectedProd = [];
+      this.newTransModalForm = {
+        seriesNo: "",
+        payorName: "",
+        selectedPaymentType: "CASH",
+        paymentTypeOptions: [
+          { text: "CASH", value: "CASH" },
+          { text: "CHECK", value: "CHECK" },
+        ],
+        draweeBank: "",
+        number: "",
+        dateCheck: null,
+      };
+
       this.$bvModal.show("newTransModal");
+      this.getSeriesNo();
+      this.setProductList();
+    },
+
+    setProductList() {
+      let tempProdList = [];
+      this.getAllProducts.forEach(
+        function (prod) {
+          // check if product exists in selected products
+          let prodExists =
+            this.newReceiptSelectedProd.filter(function (selectedProd) {
+              return selectedProd.prodId == prod.prodId;
+            }).length > 0;
+          // if not exists then push product to product selection list
+          if (!prodExists) tempProdList.push(prod);
+        }.bind(this)
+      );
+      this.insertProductModalData.products = tempProdList;
     },
 
     insertProduct(item) {
       this.newReceiptSelectedProd.push({
         prodId: item.prodId,
         prodName: item.prodName,
-        amount: 0.0,
+        amount: "",
       });
-      this.insertProductModalData.products.splice(item, 1);
+      this.setProductList();
     },
 
     removeSelectedProduct(item) {
       this.newReceiptSelectedProd.splice(item, 1);
+      this.setProductList();
+    },
+
+    getSeriesNo() {
+      const seriesNo = this.getAllTransaction.transHeader.filter(function (val) {
+        return val.transaction_status == "PR";
+      }).length;
+
+      this.newTransModalForm.seriesNo = String(seriesNo + 1).padStart(6, "0");
+      return String(seriesNo + 1).padStart(6, "0");
+    },
+
+    onsaveReceipt() {
+      const trans_header = {
+        payor: this.newTransModalForm.payorName,
+        amount: this.getTotalAmount,
+        payment_type: this.newTransModalForm.selectedPaymentType,
+        check_no: this.newTransModalForm.number,
+        transaction_date: new Date().toLocaleDateString(),
+        user_id: localStorage.user_id,
+        check_date: this.newTransModalForm.dateCheck,
+      };
+
+      let trans_line = [];
+      this.newReceiptSelectedProd.forEach(
+        function (val) {
+          trans_line.push({ product_id: val.prodId, quantity: 1, amount: val.amount });
+        }.bind(this)
+      );
+
+      axios({
+        method: "POST",
+        url: `${this.$axios.defaults.baseURL}/transaction/draftTransaction`,
+        data: {
+          trans_header,
+          trans_line,
+        },
+      }).then(
+        (res) => {
+          this.showAlert("Successfully saved draft.", "success");
+          this.fetchAllTransaction();
+          this.$bvModal.hide("newTransModal");
+          this.$bvModal
+            .msgBoxConfirm(
+              `Transaction successfully saved as draft with Document#: ${res.data.trans_header[0].transaction_code} would you like to process transaction?`,
+              {
+                title: "Information",
+                size: "sm",
+                buttonSize: "sm",
+                okVariant: "success",
+                okTitle: "YES",
+                cancelTitle: "NO",
+                footerClass: "p-2",
+                hideHeaderClose: false,
+                centered: true,
+              }
+            )
+            .then((value) => {
+              if (value) {
+                this.isLoading = true;
+                setTimeout(() => {
+                  this.doProecss(res.data.trans_header[0].transaction_id);
+                }, 3000);
+              }
+            })
+            .catch((err) => {
+              // An error occurred
+            });
+        },
+        (err) => {
+          this.showAlert(err.response ? err.response.data.errorMsg : err, "danger");
+        }
+      );
+    },
+
+    async fetchAllTransaction() {
+      this.$store.dispatch("dataentry/getAllTransaction");
+    },
+
+    fetchAllUsers() {
+      this.$store.dispatch("user/getAllUsers");
+    },
+
+    setArEntries() {
+      this.arEntries = [];
+      const trans = this.getAllTransaction ? this.getAllTransaction.transHeader : [];
+      trans.forEach(
+        function (val) {
+          this.arEntries.push({
+            id: val.transaction_id,
+            docnum: val.transaction_code,
+            docstatus: val.transaction_status,
+            payor: val.payor,
+            transType: val.payment_type,
+            checkNo: val.check_no,
+            check_date: val.check_date,
+            collectingOfficer: `${this.getUser[0].firstname} ${this.getUser[0].lastname}`,
+            totalAmt: val.amount_total,
+            dateTrans: val.transaction_date.split("T")[0],
+          });
+        }.bind(this)
+      );
+      this.arEntries.reverse();
+    },
+
+    process(item) {
+      this.fetchAllTransaction();
+      this.$bvModal
+        .msgBoxConfirm("Are you sure you want to process transcation?", {
+          title: "Please Confirm",
+          size: "sm",
+          buttonSize: "sm",
+          okVariant: "primary",
+          okTitle: "YES",
+          cancelTitle: "NO",
+          footerClass: "p-2",
+          hideHeaderClose: false,
+          centered: true,
+        })
+        .then((value) => {
+          if (value) {
+            this.isLoading = true;
+            setTimeout(() => {
+              this.doProecss(item.id);
+            }, 3000);
+          }
+        })
+        .catch((err) => {
+          // An error occurred
+        });
+    },
+
+    async doProecss(transId) {
+      await axios({
+        method: "POST",
+        url: `${this.$axios.defaults.baseURL}/transaction/processTransaction`,
+        data: {
+          trans_id: transId,
+          transCodePR: `PR${this.getSeriesNo()}`,
+        },
+      }).then(
+        (res) => {
+          this.isLoading = false;
+          this.showAlert("Successfully processed transaction.", "success");
+          this.fetchAllTransaction();
+        },
+        (err) => {
+          this.isLoading = false;
+          this.showAlert(err, "danger");
+          console.log(err.response);
+        }
+      );
     },
   },
 
-  created() {},
+  created() {
+    this.fetchAllTransaction();
+    this.fetchAllUsers();
+
+    setInterval(() => {
+      this.setArEntries();
+    }, 1000);
+  },
+
   computed: {
+    rows() {
+      return this.arEntries.length;
+    },
+
     getBarIsClicked() {
       return this.$store.state.dashboard.barIsClicked;
+    },
+
+    getTotalAmount() {
+      let total = 0;
+      this.newReceiptSelectedProd.forEach(
+        function (val) {
+          total += Number(val.amount);
+        }.bind(this)
+      );
+      return total;
+    },
+
+    getAllProducts() {
+      return this.$store.state.dataentry.products;
+    },
+
+    getAllTransaction() {
+      return this.$store.state.dataentry.transactions;
+    },
+
+    getAllUsers() {
+      return this.$store.state.user.users;
+    },
+
+    getUser() {
+      return this.getAllUsers.filter(function (val) {
+        return val.user_id == localStorage.user_id;
+      });
     },
   },
 };
