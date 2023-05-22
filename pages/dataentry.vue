@@ -11,7 +11,10 @@
       </b-button>
 
       <div class="dataentry__tooltip mt-3">
-        <b-form-input class="dataentry__tooltip__input mr-1" placeholder="Search . . ." />
+        <b-form-input
+          class="dataentry__tooltip__input mr-1"
+          placeholder="Search . . ."
+        />
         <b-form-select
           title="Filter bt status"
           class="dataentry__tooltip__select mr-1"
@@ -34,7 +37,9 @@
           v-model="dateTo"
           locale="en"
         ></b-form-datepicker>
-        <b-button> <font-awesome-icon :icon="['fas', 'magnifying-glass']" /></b-button>
+        <b-button>
+          <font-awesome-icon :icon="['fas', 'magnifying-glass']"
+        /></b-button>
       </div>
 
       <b-table
@@ -61,7 +66,12 @@
             Process
             <font-awesome-icon icon="fa-solid fa-cogs" />
           </b-button>
-          <b-button size="sm" class="mb-1" title="View full details" variant="info">
+          <b-button
+            size="sm"
+            class="mb-1"
+            title="View full details"
+            variant="info"
+          >
             View
             <font-awesome-icon icon="fa-solid fa-eye" />
           </b-button>
@@ -99,7 +109,11 @@
               ></b-form-input>
             </b-form-group>
 
-            <b-form-group id="payor-group" label="Payor:" label-for="input-payor">
+            <b-form-group
+              id="payor-group"
+              label="Payor:"
+              label-for="input-payor"
+            >
               <b-form-input
                 id="input-payor"
                 v-model="newTransModalForm.payorName"
@@ -134,7 +148,11 @@
                   required
                 ></b-form-input>
               </b-form-group>
-              <b-form-group id="number-group" label="Number:" label-for="input-number">
+              <b-form-group
+                id="number-group"
+                label="Number:"
+                label-for="input-number"
+              >
                 <b-form-input
                   id="input-number"
                   v-model="newTransModalForm.number"
@@ -194,7 +212,11 @@
 
       <template #modal-footer>
         <div class="w-100">
-          <b-button @click="onsaveReceipt()" variant="primary" class="float-right ml-1">
+          <b-button
+            @click="onsaveReceipt()"
+            variant="primary"
+            class="float-right ml-1"
+          >
             <font-awesome-icon :icon="['fas', 'floppy-disk']" /> Save Receipt
           </b-button>
           <b-button @click="$bvModal.hide('newTransModal')" class="float-right">
@@ -236,10 +258,9 @@
             class="float-right"
             @click="$bvModal.hide('insertProdModal')"
             size="sm"
-            variant="primary"
           >
-            Done
-            <font-awesome-icon :icon="['fas', 'check']" />
+            Close
+            <font-awesome-icon :icon="['fas', 'close']" />
           </b-button>
         </div>
       </template>
@@ -402,7 +423,10 @@ export default {
     },
 
     getSeriesNo() {
-      const seriesNo = this.getAllTransaction.transHeader.filter(function (val) {
+      const trans = this.getAllTransaction.transHeader
+        ? this.getAllTransaction.transHeader
+        : [];
+      const seriesNo = trans.filter(function (val) {
         return val.transaction_status == "PR";
       }).length;
 
@@ -424,7 +448,11 @@ export default {
       let trans_line = [];
       this.newReceiptSelectedProd.forEach(
         function (val) {
-          trans_line.push({ product_id: val.prodId, quantity: 1, amount: val.amount });
+          trans_line.push({
+            product_id: val.prodId,
+            quantity: 1,
+            amount: val.amount,
+          });
         }.bind(this)
       );
 
@@ -468,7 +496,10 @@ export default {
             });
         },
         (err) => {
-          this.showAlert(err.response ? err.response.data.errorMsg : err, "danger");
+          this.showAlert(
+            err.response ? err.response.data.errorMsg : err,
+            "danger"
+          );
         }
       );
     },
@@ -483,7 +514,11 @@ export default {
 
     setArEntries() {
       this.arEntries = [];
-      const trans = this.getAllTransaction ? this.getAllTransaction.transHeader : [];
+      const trans = !this.getAllTransaction
+        ? []
+        : this.getAllTransaction.transHeader
+        ? this.getAllTransaction.transHeader
+        : [];
       trans.forEach(
         function (val) {
           this.arEntries.push({
