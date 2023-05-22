@@ -8,9 +8,7 @@
       <div class="subText">PLEASE WAIT FOR YOUR NUMBER</div>
       <div class="mainText">{{ reportState.windowDesc }}</div>
       <div class="mainTextNumber">
-        {{
-          reportState.windowCode + String(reportState.curNum).padStart(3, "0")
-        }}
+        {{ reportState.windowCode + String(reportState.curNum).padStart(3, "0") }}
       </div>
       <div class="mainTextDate">{{ dateNow }}</div>
     </div>

@@ -1,11 +1,42 @@
 <template>
-  <div><acknowledgementReceipt /></div>
+  <div>
+    <acknowledgementReceipt
+      docno="PR00001"
+      :productLine="productLine"
+      payor="Kim Ariel N. Dequilla"
+      colOfficer="Mitchell Rosauro Barcelona"
+      selectedPaymentType="CASH"
+    />
+  </div>
 </template>
 <script>
 import acknowledgementReceipt from "../../components/Report/acknowledgementReceipt.vue";
 export default {
   components: {
     acknowledgementReceipt,
+  },
+
+  data() {
+    return {
+      productLine: [
+        {
+          prodName: "RICE",
+          price: 2000.5,
+          class: "bb1",
+        },
+        {
+          prodName: "CORN",
+          price: 2100.35,
+          class: "bb1",
+        },
+
+        {
+          prodName: "LIVESTOCK",
+          price: 4000.5,
+          class: "bb1",
+        },
+      ],
+    };
   },
   mounted() {
     window.print();

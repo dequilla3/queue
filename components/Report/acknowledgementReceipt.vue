@@ -13,25 +13,23 @@
         <h6 class="pt-2 pb-2 bb1 f14">
           <b>ACKNOWLEDGEMENT RECEIPT</b>
         </h6>
-        <h4 class="bb1 pb-1">No. 0001</h4>
-        <p class="f12">Date: {{ new Date().toLocaleDateString() }}</p>
+        <h4 class="bb1 pb-1">No. {{ this.docno }}</h4>
+        <p class="f14">Date: {{ new Date().toLocaleDateString() }}</p>
       </div>
     </div>
 
     <div class="body_section">
       <div class="bb1 pt-1 pb-1 pl-1 payor">
         PAYOR:
-        <h4 class="ml-2">KIM ARIEL DEQUILLA</h4>
+        <h4 class="ml-2">
+          {{ this.payor.toUpperCase() }}
+        </h4>
       </div>
       <div>
         <table class="">
+          <caption></caption>
           <tr>
-            <th
-              style="
-                border-bottom: 1px solid #000000;
-                border-right: 1px solid #000000;
-              "
-            >
+            <th style="border-bottom: 1px solid #000000; border-right: 1px solid #000000">
               PRODUCT LINE
             </th>
             <th style="border-bottom: 1px solid #000000">AMOUNT</th>
@@ -43,7 +41,8 @@
             </td>
 
             <td :class="`pl-3 ${item.class}`">
-              {{ item.price }}
+              <font-awesome-icon class="f10" icon="fa-solid fa-peso-sign" />
+              {{ numberWithCommas(getRoundOff(item.price)) }}
             </td>
           </tr>
         </table>
@@ -60,12 +59,20 @@
         <div class="payment_type_group br1">
           <div class="payment_type_select">
             <div class="payment_type_select_box mr-2">
-              <font-awesome-icon icon="fa-solid fa-check" />
+              <font-awesome-icon
+                v-show="this.selectedPaymentType == 'CASH'"
+                icon="fa-solid fa-check"
+              />
             </div>
             <b>CASH</b>
           </div>
           <div class="payment_type_select">
-            <div class="payment_type_select_box mr-2"></div>
+            <div class="payment_type_select_box mr-2">
+              <font-awesome-icon
+                v-show="this.selectedPaymentType == 'CHECK'"
+                icon="fa-solid fa-check"
+              />
+            </div>
             <b>CHECK</b>
           </div>
         </div>
@@ -73,22 +80,25 @@
         <div class="payment_type_table">
           <div class="payment_type_tr br1">
             <div class="bb1 pb-1"><b>Drawee Bank</b></div>
-            <div class="payment_type_td"></div>
+            <div class="payment_type_td">{{ this.draweeBank }}</div>
           </div>
           <div class="payment_type_tr br1">
             <div class="bb1 pb-1"><b>Number</b></div>
-            <div class="payment_type_td"></div>
+            <div class="payment_type_td">{{ this.number }}</div>
           </div>
           <div class="payment_type_tr">
             <div class="bb1 pb-1"><b>Date</b></div>
-            <div class="payment_type_td"></div>
+            <div class="payment_type_td">{{ this.dateCheck }}</div>
           </div>
         </div>
       </div>
 
       <div class="signature">
         <div class="co">
-          <u><b>Mitchell Barcelona</b></u>
+          <u
+            ><b>{{ this.colOfficer.toUpperCase() }}</b></u
+          >
+
           <div>Collecting Officer</div>
         </div>
       </div>
@@ -99,34 +109,51 @@
 import { convertNuWithCents } from "../../util/convertNumbertoWords";
 export default {
   data() {
-    return {
-      productLine: [
-        {
-          prodName: "RICE",
-          price: 2000,
-          class: "bb1",
-        },
-      ],
-    };
+    return { totalAmt: 0 };
+  },
+
+  props: {
+    docno: String,
+    productLine: Array,
+    payor: String,
+    colOfficer: String,
+    selectedPaymentType: String,
+    draweeBank: String,
+    number: String,
+    dateCheck: String,
   },
 
   methods: {
+    numberWithCommas(x) {
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    },
+    getRoundOff(num) {
+      return (Math.round(num * 100) / 100).toFixed(2);
+    },
     fillInBlank() {
-      let prodLen = this.productLine.length;
+      const prodLen = this.productLine.length;
+      const maxTableLen = 8;
 
-      for (let i = 0; i < 8 - prodLen; i++) {
-        console.log(i);
-        if (i == 6) {
+      this.totalAmt = 0;
+
+      for (let i = 0; i < maxTableLen - prodLen; i++) {
+        if (i == maxTableLen - prodLen - 1) {
+          this.productLine.forEach(
+            function (val) {
+              this.totalAmt += Number(val.price);
+            }.bind(this)
+          );
+
           this.productLine.push({
             prodName: "TOTAL",
-            price: "2000",
+            price: this.getRoundOff(this.totalAmt),
             class: "font-weight-bold bt1",
           });
         } else {
           this.productLine.push({
-            prodName: "-",
-            price: "-",
-            class: "",
+            prodName: "",
+            price: "0.00",
+            class: "color-transparent",
           });
         }
       }
@@ -135,7 +162,7 @@ export default {
 
   computed: {
     getNumToWord() {
-      return convertNuWithCents(2000).toUpperCase();
+      return convertNuWithCents(this.totalAmt).toUpperCase();
     },
   },
 
@@ -152,9 +179,11 @@ export default {
 .payor {
   display: flex;
 }
+
 .h100 {
   height: 100%;
 }
+
 .report {
   margin: 0.5in 24px 24px 24px;
   border: 1px solid #000000;
@@ -177,9 +206,18 @@ export default {
   width: 50%;
   text-align: center;
 }
+
+.f10 {
+  font-size: 10px;
+}
+.f11 {
+  font-size: 11px;
+}
+
 .f12 {
   font-size: 12px;
 }
+
 .f13 {
   font-size: 13px;
 }
@@ -207,14 +245,11 @@ table {
   border-bottom: 1px solid #000000;
   width: 100%;
 }
+
 th {
   /* border: 2px solid #000000; */
   padding: 10px 5px;
   font-size: 12px;
-}
-td {
-  /* border-bottom: 1px solid #000000; */
-  /* color: transparent; */
 }
 
 .payment_type {
@@ -232,6 +267,7 @@ td {
   width: 25px;
   text-align: center;
 }
+
 .payment_type_group {
   /* border: 2px solid #000000; */
   padding: 10px;
@@ -242,6 +278,7 @@ td {
   display: flex;
   width: 100%;
 }
+
 .payment_type_tr {
   /* border: 2px solid #000000; */
   width: 100%;
@@ -267,6 +304,7 @@ td {
 .br1 {
   border-right: 1px solid #000000;
 }
+
 .bb1 {
   border-bottom: 1px solid #000000;
 }
@@ -277,5 +315,9 @@ td {
 
 .bl1 {
   border-left: 1px solid #000000;
+}
+
+.color-transparent {
+  color: transparent;
 }
 </style>
