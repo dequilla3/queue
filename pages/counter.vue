@@ -356,7 +356,7 @@ export default {
         method: "POST",
         url: `${this.$axios.defaults.baseURL}/queuing/generateQueueNum`,
         data: {
-          winNum: localStorage.role,
+          winNum: "w5",
           transType: "t1",
           date_queue: moment().format(),
           gender: this.ongoing.gender,

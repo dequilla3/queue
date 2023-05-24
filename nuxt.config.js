@@ -44,13 +44,15 @@ export default {
 
   server: {
     port: 7501,
-    host: "0.0.0.0",
+    // host: "0.0.0.0",
   },
 
   axios: {
-    baseUrl: "http://192.168.1.163:5100",
+    // baseUrl: "http://172.16.28.163:5100",
+    baseUrl: "http://172.16.28.15:5100",
   },
   env: {
-    baseUrl: "http://192.168.1.163:5100",
+    // baseUrl: "http://192.168.1.163:5100",
+    baseUrl: "http://172.16.28.15:5100",
   },
 };

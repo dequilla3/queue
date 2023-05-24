@@ -24,22 +24,11 @@ export default {
           price: 2000.5,
           class: "bb1",
         },
-        {
-          prodName: "CORN",
-          price: 2100.35,
-          class: "bb1",
-        },
-
-        {
-          prodName: "LIVESTOCK",
-          price: 4000.5,
-          class: "bb1",
-        },
       ],
     };
   },
   mounted() {
-    window.print();
+    // window.print();
   },
 };
 </script>

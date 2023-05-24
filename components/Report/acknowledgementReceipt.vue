@@ -14,7 +14,7 @@
           <b>ACKNOWLEDGEMENT RECEIPT</b>
         </h6>
         <h4 class="bb1 pb-1">No. {{ this.docno }}</h4>
-        <p class="f14">Date: {{ new Date().toLocaleDateString() }}</p>
+        <p class="f14">Date: {{ this.dateTrans }}</p>
       </div>
     </div>
 
@@ -29,10 +29,8 @@
         <table class="">
           <caption></caption>
           <tr>
-            <th style="border-bottom: 1px solid #000000; border-right: 1px solid #000000">
-              PRODUCT LINE
-            </th>
-            <th style="border-bottom: 1px solid #000000">AMOUNT</th>
+            <th class="bb1 br1">PRODUCT LINE</th>
+            <th class="bb1">AMOUNT</th>
           </tr>
 
           <tr v-for="item in productLine" :key="item.index">
@@ -108,6 +106,7 @@
 <script>
 import { convertNuWithCents } from "../../util/convertNumbertoWords";
 export default {
+  name: "acknowledgementReceipt",
   data() {
     return { totalAmt: 0 };
   },
@@ -121,6 +120,7 @@ export default {
     draweeBank: String,
     number: String,
     dateCheck: String,
+    dateTrans: String,
   },
 
   methods: {
@@ -162,13 +162,11 @@ export default {
 
   computed: {
     getNumToWord() {
-      return convertNuWithCents(this.totalAmt).toUpperCase();
+      return convertNuWithCents(this.getRoundOff(this.totalAmt)).toUpperCase();
     },
   },
 
-  created() {
-    this.fillInBlank();
-  },
+  created() {},
 };
 </script>
 <style scoped>

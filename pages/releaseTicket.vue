@@ -47,11 +47,10 @@
             >FEMALE</b-button
           >
 
-          <b-button
-            @click="$bvModal.hide('gender_modal')"
-            variant="danger w-100 mt-5"
-            ><font-awesome-icon icon="fa-solid fa-close" /> CANCEL</b-button
-          >
+          <b-button @click="$bvModal.hide('gender_modal')" variant="danger w-100 mt-5"
+            ><font-awesome-icon icon="fa-solid fa-close" />
+            CANCEL
+          </b-button>
         </b-overlay>
       </b-modal>
     </div>
