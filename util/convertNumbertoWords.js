@@ -155,6 +155,5 @@ function doConvert(n, custom_join_character) {
 export function convertNuWithCents(num) {
   const nums = num.toString().split(".");
   const cents = nums[1] ? " and " + doConvert(nums[1]) + " cent/s" : "";
-  return `${doConvert(nums[0])} PESOS${cents} ONLY`;
+  return `${doConvert(nums[0])} PESOS${nums[1] == '00' ? "" : cents} ONLY`;
 }
- 

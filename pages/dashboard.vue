@@ -1,6 +1,17 @@
 <template>
   <div>
     <logout mode="light" pos="left" />
+    <b-form-checkbox
+      class="switchCb"
+      v-model="isSoundOn"
+      name="check-button"
+      switch
+      size="lg"
+      @change="onOffSound()"
+    >
+      {{ `${isSoundOn ? "OFF" : "ON"} AUDIO` }}
+    </b-form-checkbox>
+
     <div class="dashboard">
       <div class="dashboard__content">
         <div class="dashboard__vid">
@@ -77,11 +88,7 @@ import moment from "moment";
 import logo from "../assets/img/logo.png";
 import logout from "../components/logout.vue";
 import { Howl } from "howler";
-import io from "socket.io-client";
-
-const sound = new Howl({
-  src: ["attention.mp3"],
-});
+import { speak } from "../util/textToSpeech";
 
 export default {
   name: "dashboard",
@@ -90,6 +97,11 @@ export default {
   },
   data() {
     return {
+      isSoundOn: false,
+      sound: new Howl({
+        src: ["attention.mp3"],
+      }),
+
       server: "Connecting...",
       logo: logo,
       dateNow: "",
@@ -136,6 +148,17 @@ export default {
   },
 
   methods: {
+    onOffSound() {
+      if (this.isSoundOn) {
+        this.sound = new Howl({
+          src: ["attention.mp3"],
+        });
+      } else {
+        this.sound = new Howl({
+          src: ["no-audio-zxc.mp3"],
+        });
+      }
+    },
     editRunningText() {
       this.$bvModal.show("edit_runningtext_modal");
     },
@@ -161,19 +184,32 @@ export default {
       );
     },
 
-    //TODO: play sound on dasboard
     async fetchQueueList(val) {
-      await this.$store
-        .dispatch("counter/getAllQueueList", val.wCode)
-        .then((res) => {
-          let ongoing = res.data.filter(function (val) {
-            return val.status == "ONGOING";
-          });
-          let newQnum = ongoing[0] ? ongoing[0].queue_num : 0;
-          if (newQnum != val.qNum && newQnum != 0) {
-            val.qNum = newQnum;
-          }
+      await this.$store.dispatch("counter/getAllQueueList", val.wCode).then((res) => {
+        let ongoing = res.data.filter(function (val) {
+          return val.status == "ONGOING";
         });
+
+        let newQnum = ongoing[0] ? ongoing[0].queue_num : 0;
+
+        /**
+         * CONDITION:
+         *    - IF new queue number is not equal current queue number
+         *      and IF new queue number is not equal to 0 wil play the audio
+         */
+        if (newQnum != val.qNum) {
+          val.qNum = newQnum;
+          this.playSound(newQnum);
+        }
+      });
+    },
+
+    async playSound(newQnum) {
+      //dont execute if incoming number is zero
+      if (newQnum == 0) return;
+      //stop sound first before playing to prevent mixing of sounds
+      this.sound.stop();
+      this.sound.play();
     },
   },
 
@@ -190,17 +226,8 @@ export default {
     clearInterval(this.roleCheckInterval);
   },
 
-  // created() {
-  //   let serverLink = `${process.env.baseURL}`;
-  //   const socket = io.connect(serverLink, {
-  //     secure: true,
-  //   });
-  //   socket.on("dashboard", () => {
-  //     console.log("socket connected to server?", socket.connected);
-  //   });
-  // },
-
   mounted() {
+    this.onOffSound();
     this.intervalOngoing = setInterval(() => {
       this.fetchQueueListPerWindow();
     }, 1000);
@@ -229,7 +256,13 @@ video {
   border: 0;
   z-index: 0;
 }
-
+.switchCb {
+  position: absolute;
+  font-weight: bold;
+  color: white;
+  left: 5%;
+  top: 2%;
+}
 .watermark {
   position: absolute;
   left: 3%;
@@ -313,7 +346,7 @@ td {
   width: 100%;
   font-size: 20px;
   font-weight: bold;
-  background: yellowgreen;
+  background: green;
   color: white;
   text-align: center;
   height: 8vh;

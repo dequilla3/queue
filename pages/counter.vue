@@ -13,7 +13,7 @@
         </div>
         <div class="counter_container__actions">
           <div class="logo">
-            <img class="logo__img mr-2" src="../assets/img/logo.png" />
+            <img class="logo__img mr-2" src="../assets/img/logo.png" alt="" />
             <p>
               PHILIPPINE CROP <br />
               INSURANCE CORPORATION <br />
@@ -195,7 +195,7 @@ export default {
 
     async playAudio() {
       this.audioDone = false;
-      audio.play();
+      // audio.play();
       //enable recall btn after 3.2s
       setTimeout(() => {
         this.audioDone = true;
@@ -209,6 +209,7 @@ export default {
       }
 
       this.playAudio();
+      this.postRecall();
     },
 
     onInsertHeldNum() {
@@ -230,22 +231,28 @@ export default {
     },
 
     async onNext() {
-      this.showOverlayNext = true;
-      if (this.ongoing < 1) {
-        //if without ongoing transaction then post ongoing only
-        this.postOngoing();
-      } else {
-        /**
-         * PROCEDURE:
-         *  update ongoing to done then;
-         *  update latest pending to ongoing
-         */
-        await this.postByStatus("DONE", "ONGOING").then(() => {
-          this.postOngoing();
-        });
+      await this.fetchAllQueueList().then(() => {
+        if (this.getQueueByStatus("PENDING").length > 0) {
+          this.showOverlayNext = true;
+          if (this.ongoing < 1) {
+            //if without ongoing transaction then post ongoing only
+            this.postOngoing();
+          } else {
+            /**
+             * PROCEDURE:
+             *  update ongoing to done then;
+             *  update latest pending to ongoing
+             */
+            this.postByStatus("DONE", "ONGOING").then(() => {
+              this.postOngoing();
+            });
 
-        this.showOverlayNext = false;
-      }
+            this.showOverlayNext = false;
+          }
+        } else {
+          this.showAlert("No PENDING queue.", "danger");
+        }
+      });
     },
 
     async onHold() {
@@ -302,12 +309,50 @@ export default {
             this.playAudio();
             this.ongoing = this.getOngoing[0];
             this.donePost = true;
+            localStorage.ongoing = this.ongoing;
           }
           this.showOverlayNext = false;
         })
         .catch((err) => {
           this.showAlert(err, "danger");
         });
+    },
+
+    postRecall() {
+      /**
+       * 1. UPDATE ONGOING TO RECALL
+       * 2. THEN UPDATE RECALL BACK TO ONGOING
+       *
+       * TIP: JUST TO TRIGGER DASHBOARD EVENT AND PLAY AUDIO
+       */
+      this.fetchAllQueueList().then(() => {
+        // #1
+        const idOngoing = this.getQueueByStatus("ONGOING")[0].queue_id;
+        console.log(idOngoing);
+        this.$store
+          .dispatch("counter/postQueuesByStatus", {
+            role: localStorage.role,
+            newStatus: "RECALL",
+            oldStatus: "ONGOING",
+            queueId: idOngoing,
+          })
+          .then(() => {
+            // #2
+            setTimeout(() => {
+              this.$store
+                .dispatch("counter/postQueuesByStatus", {
+                  role: localStorage.role,
+                  newStatus: "ONGOING",
+                  oldStatus: "RECALL",
+                  queueId: idOngoing,
+                })
+                .then(() => {})
+                .catch((err) => {
+                  this.showAlert(err, "danger");
+                });
+            }, 1000);
+          });
+      });
     },
 
     async fetchAllQueueList() {

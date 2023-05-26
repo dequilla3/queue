@@ -2,7 +2,9 @@
   <div>
     <div class="login">
       <p class="login__header-text mb-5">
-        <img src="../assets/img/logo.png" class="logo" alt="" /> PCIC XI
+        <img src="../assets/img/logo.png" class="logo" alt="" />
+        PCIC XI Systems <br />
+        <i><sub>Version Beta</sub></i>
       </p>
 
       <b-form class="login__form" @submit="userLogin">
@@ -285,8 +287,8 @@ $x: 35%;
 $y: 10%;
 
 .logo {
-  width: 30px;
-  height: 30px;
+  width: 20px;
+  height: 20px;
 }
 .login {
   background: white;
@@ -300,8 +302,7 @@ $y: 10%;
   -webkit-box-shadow: 0px 0px 115px -25px rgba(0, 0, 0, 0.46);
   -moz-box-shadow: 0px 0px 115px -25px rgba(0, 0, 0, 0.46);
   &__header-text {
-    font-size: 20px;
-    font-weight: bold;
+    font-size: 14px;
     text-align: center;
   }
   &__form {

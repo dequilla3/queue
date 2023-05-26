@@ -6,7 +6,7 @@
         <b-overlay :show="isLoading" rounded="sm" no-wrap />
         <h5 class="font-weight-bold">ACKNOWLEDGEMENT RECEIPT</h5>
         <br />
-        <b-button class="shadow" variant="primary" @click="onNewTrans()">
+        <b-button class="shadow" variant="primary" @click="openTransModal('NEW')">
           <font-awesome-icon icon="fa-solid fa-plus" />
           New Receipt
         </b-button>
@@ -50,11 +50,21 @@
             locale="en"
             :date-format-options="{ year: 'numeric', month: 'numeric', day: 'numeric' }"
           />
-          <b-button title="Filter transaction list" @click="setArEntries()">
-            <font-awesome-icon :icon="['fas', 'magnifying-glass']" />
+          <b-button
+            title="Filter transaction list"
+            @click="onFilter()"
+            class="mr-1"
+            variant="info"
+          >
+            <font-awesome-icon :icon="['fas', 'filter']" />
+          </b-button>
+
+          <b-button title="Reset filter parameter" @click="resetFilterParams()">
+            <font-awesome-icon :icon="['fas', 'rotate-right']" />
           </b-button>
         </div>
 
+        <!-- main table -->
         <b-table
           class="table-style mt-4"
           hover
@@ -67,8 +77,13 @@
           <template #cell(docnum)="row">
             <b>{{ row.item.docnum }}</b>
           </template>
+
           <template #cell(dateTrans)="row">
             {{ row.item.dateTrans }}
+          </template>
+
+          <template #cell(totalAmt)="row">
+            {{ getRoundOff(row.item.totalAmt) }}
           </template>
 
           <template #cell(action)="row">
@@ -88,6 +103,7 @@
               class="mb-1 rounded-circle shadow"
               title="View full details"
               variant="info"
+              @click="openTransModal('VIEW', row.item.id)"
             >
               <font-awesome-icon icon="fa-solid fa-eye" />
             </b-button>
@@ -102,6 +118,17 @@
             >
               <font-awesome-icon icon="fa-solid fa-print" />
             </b-button>
+
+            <b-button
+              size="sm"
+              class="mb-1 rounded-circle shadow"
+              title="Update transaction"
+              variant="dark"
+              v-if="row.item.docstatus == 'DR'"
+              @click="openTransModal('UPDATE', row.item.id)"
+            >
+              <font-awesome-icon :icon="['fas', 'pen-to-square']" />
+            </b-button>
           </template>
         </b-table>
 
@@ -113,14 +140,14 @@
       </div>
 
       <b-modal
-        class="newTransModal"
-        id="newTransModal"
-        title="New receipt"
+        class="transModal"
+        id="transModal"
+        :title="transModalTitle"
         size="huge"
         no-close-on-backdrop
       >
-        <div class="newTransModal__container">
-          <div class="newTransModal__form">
+        <div class="transModal__container">
+          <div class="transModal__form">
             <b-form>
               <b-form-group
                 id="seriesno-group"
@@ -130,36 +157,58 @@
                 <b-form-input
                   class="text-uppercase"
                   id="input-seriesno"
-                  v-model="newTransModalForm.seriesNo"
+                  v-model="transModalForm.seriesNo"
                   type="text"
                   required
                   disabled
                 ></b-form-input>
               </b-form-group>
 
-              <b-form-group id="payor-group" label="Payor:" label-for="input-payor">
+              <b-form-group
+                id="dateTrans-group"
+                label="Date Transaction:"
+                label-for="input-dateTrans"
+                v-if="isActionView"
+              >
                 <b-form-input
                   class="text-uppercase"
-                  id="input-payor"
-                  v-model="newTransModalForm.payorName"
+                  id="input-dateTrans"
+                  v-model="transModalForm.dateTrans"
+                  type="text"
+                  required
+                  disabled
+                ></b-form-input>
+              </b-form-group>
+
+              <b-form-group
+                id="payor-group"
+                label="Payor Name:"
+                label-for="input-dateTrans"
+              >
+                <b-form-input
+                  class="text-uppercase"
+                  id="input-dateTrans"
+                  v-model="transModalForm.payorName"
                   type="text"
                   placeholder="Enter payor name"
                   required
+                  :disabled="isActionView"
                 ></b-form-input>
               </b-form-group>
 
               <b-form-group label="Payment type:" v-slot="{ ariaDescribedby }">
                 <b-form-radio-group
-                  v-model="newTransModalForm.selectedPaymentType"
-                  :options="newTransModalForm.paymentTypeOptions"
+                  v-model="transModalForm.selectedPaymentType"
+                  :options="transModalForm.paymentTypeOptions"
                   :aria-describedby="ariaDescribedby"
                   name="radio-inline"
                   size="lg"
                   plain
+                  :disabled="isActionView"
                 ></b-form-radio-group>
               </b-form-group>
 
-              <div v-if="newTransModalForm.selectedPaymentType == 'CHECK'">
+              <div v-if="transModalForm.selectedPaymentType == 'CHECK'">
                 <b-form-group
                   id="drawee-group"
                   label="Drawee Bank:"
@@ -168,32 +217,41 @@
                   <b-form-input
                     class="text-uppercase"
                     id="input-drawee"
-                    v-model="newTransModalForm.draweeBank"
+                    v-model="transModalForm.draweeBank"
                     type="text"
                     placeholder="Enter drawee bank"
                     required
+                    :disabled="isActionView"
                   ></b-form-input>
                 </b-form-group>
                 <b-form-group id="number-group" label="Number:" label-for="input-number">
                   <b-form-input
                     id="input-number"
-                    v-model="newTransModalForm.number"
+                    v-model="transModalForm.number"
                     type="text"
                     placeholder="Enter number"
                     required
+                    :disabled="isActionView"
                   ></b-form-input>
                 </b-form-group>
 
                 <label for="date-check">Date:</label>
                 <b-form-datepicker
                   id="date-check"
-                  v-model="newTransModalForm.dateCheck"
+                  v-model="transModalForm.dateCheck"
+                  :disabled="isActionView"
                 ></b-form-datepicker>
               </div>
             </b-form>
           </div>
-          <div class="newTransModal__line">
-            <b-button @click="onInsertProduct()" class="mb-1" variant="primary" size="sm">
+          <div class="transModal__line">
+            <b-button
+              @click="onInsertProduct()"
+              class="mb-1"
+              variant="primary"
+              size="sm"
+              v-if="!isActionView"
+            >
               <font-awesome-icon :icon="['fas', 'arrow-down']" />
               Insert Product
             </b-button>
@@ -210,6 +268,7 @@
                   placeholder="0.00"
                   type="number"
                   v-model="newReceiptSelectedProd[row.index].amount"
+                  :disabled="isActionView"
                 />
               </template>
 
@@ -219,6 +278,7 @@
                   title="Remove product from the list"
                   variant="danger"
                   size="sm"
+                  v-if="!isActionView"
                 >
                   <font-awesome-icon :icon="['fas', 'trash']" />
                 </b-button>
@@ -229,10 +289,29 @@
 
         <template #modal-footer>
           <div class="w-100">
-            <b-button @click="onSaveReceipt()" variant="primary" class="float-right ml-1">
+            <!-- print btn footer trans modal -->
+            <b-button
+              class="shadow float-right ml-1"
+              title="Print transaction"
+              variant="info"
+              @click="doPrintReceipt(selectedTransId)"
+              v-if="isActionView"
+            >
+              <font-awesome-icon icon="fa-solid fa-print" /> Print Transaction
+            </b-button>
+
+            <!-- save btn footer trans modal-->
+            <b-button
+              v-if="!isActionView"
+              @click="onSaveReceipt()"
+              variant="primary"
+              class="float-right ml-1 shadow"
+            >
               <font-awesome-icon :icon="['fas', 'floppy-disk']" /> Save Receipt
             </b-button>
-            <b-button @click="$bvModal.hide('newTransModal')" class="float-right">
+
+            <!-- close btn footer trans modal-->
+            <b-button @click="$bvModal.hide('transModal')" class="float-right shadow">
               <font-awesome-icon :icon="['fas', 'xmark']" /> Close
             </b-button>
           </div>
@@ -323,6 +402,10 @@ export default {
 
   data() {
     return {
+      selectedTransId: "",
+      action: "VIEW",
+      transModalTitle: "",
+
       inpSrchEntries: "",
       receiptData: {
         docno: "",
@@ -366,7 +449,7 @@ export default {
         { value: "pr", text: "PR" },
       ],
 
-      selectedPmtType: "CASH",
+      selectedPmtType: "",
       optionPaymentTypes: [
         { value: "", text: "ALL" },
         { value: "CASH", text: "CASH" },
@@ -375,7 +458,7 @@ export default {
       dateFrom: "",
       dateTo: "",
 
-      newTransModalForm: {
+      transModalForm: {
         seriesNo: "",
         payorName: "",
         selectedPaymentType: "CASH",
@@ -386,6 +469,7 @@ export default {
         draweeBank: "",
         number: "",
         dateCheck: null,
+        dateTrans: "",
       },
 
       newReceiptSelectedProd: [],
@@ -409,6 +493,19 @@ export default {
   },
 
   methods: {
+    resetFilterParams() {
+      this.inpSrchEntries = "";
+      this.dateFrom = "";
+      this.dateTo = "";
+      this.selectedStatus = "dr";
+      this.selectedPmtType = "";
+      this.onFilter();
+    },
+    onFilter() {
+      this.fetchAllTransaction().then(() => {
+        this.setArEntries();
+      });
+    },
     getRoundOff(num) {
       return (Math.round(num * 100) / 100).toFixed(2);
     },
@@ -422,9 +519,16 @@ export default {
       };
     },
 
-    onNewTrans() {
+    openTransModal(action, id) {
+      this.$bvModal.show("transModal");
+
+      //set transaction state
+      this.action = action;
+      this.selectedTransId = id;
+
+      //reset transaction data
       this.newReceiptSelectedProd = [];
-      this.newTransModalForm = {
+      this.transModalForm = {
         seriesNo: "",
         payorName: "",
         selectedPaymentType: "CASH",
@@ -437,9 +541,68 @@ export default {
         dateCheck: null,
       };
 
-      this.$bvModal.show("newTransModal");
+      switch (action) {
+        case "NEW":
+          this.onNewReceipt();
+          break;
+        case "VIEW":
+          this.onViewTrans(id);
+          break;
+        case "UPDATE":
+          this.onUpdateTrans(id);
+          break;
+      }
+    },
+
+    onNewReceipt() {
+      this.transModalTitle = "NEW RECEIPT";
       this.getSeriesNo();
       this.setProductList();
+    },
+
+    onViewTrans(id) {
+      this.transModalTitle = "VIEW TRANSACTION DETAILS";
+      this.setTransModalFormByTransId(id);
+      this.setTransModalFormLineById(id);
+    },
+
+    onUpdateTrans(id) {
+      this.transModalTitle = "UPDATE TRANSACTION DETAILS";
+      this.setTransModalFormByTransId(id);
+      this.setTransModalFormLineById(id);
+    },
+
+    setTransModalFormByTransId(id) {
+      const item = this.getTransHeadById(id);
+      this.transModalForm = {
+        seriesNo: item.transaction_code,
+        payorName: item.payor,
+        selectedPaymentType: item.payment_type,
+        paymentTypeOptions: [
+          { text: "CASH", value: "CASH" },
+          { text: "CHECK", value: "CHECK" },
+        ],
+        draweeBank: item.bank_code ? item.bank_code : "",
+        number: item.check_no,
+        dateCheck: item.check_date,
+        dateTrans: item.transaction_date
+          ? new Date(item.transaction_date).toLocaleDateString()
+          : "",
+      };
+    },
+
+    setTransModalFormLineById(id) {
+      const lines = this.getLinesById(id);
+      lines.forEach(
+        function (val) {
+          let prod = this.getProductById(val.product_id);
+          this.newReceiptSelectedProd.push({
+            prodId: prod.prodId,
+            prodName: prod.prodName,
+            amount: val.amount ? val.amount : 0.0,
+          });
+        }.bind(this)
+      );
     },
 
     setProductList() {
@@ -480,7 +643,7 @@ export default {
         return val.transaction_status == "PR";
       }).length;
 
-      this.newTransModalForm.seriesNo = String(seriesNo + 1).padStart(6, "0");
+      this.transModalForm.seriesNo = String(seriesNo + 1).padStart(6, "0");
       return String(seriesNo + 1).padStart(6, "0");
     },
 
@@ -488,18 +651,18 @@ export default {
       if (!this.isLoading) this.doSaveDraftReceipt();
     },
 
-    async doSaveDraftReceipt() {
+    doSaveDraftReceipt() {
       this.isLoading = true;
       //init header
       const trans_header = {
-        payor: this.newTransModalForm.payorName.toUpperCase(),
+        payor: this.transModalForm.payorName.toUpperCase(),
         amount: this.getTotalAmount,
-        payment_type: this.newTransModalForm.selectedPaymentType,
-        check_no: this.newTransModalForm.number.toUpperCase(),
+        payment_type: this.transModalForm.selectedPaymentType,
+        check_no: this.transModalForm.number.toUpperCase(),
         transaction_date: new Date().toLocaleDateString(),
         user_id: localStorage.user_id,
-        check_date: this.newTransModalForm.dateCheck,
-        bank_code: this.newTransModalForm.draweeBank,
+        check_date: this.transModalForm.dateCheck,
+        bank_code: this.transModalForm.draweeBank,
       };
 
       //init transline
@@ -514,6 +677,14 @@ export default {
         }.bind(this)
       );
 
+      if (this.action == "NEW") {
+        this.saveNewReceipt(trans_header, trans_line);
+      } else if (this.action == "UPDATE") {
+        this.updateReceipt(trans_header, trans_line);
+      }
+    },
+
+    async saveNewReceipt(trans_header, trans_line) {
       //save here
       await axios({
         method: "POST",
@@ -526,15 +697,81 @@ export default {
         (res) => {
           this.isLoading = false;
           this.showAlert("Successfully saved draft.", "success");
-          this.$bvModal.hide("newTransModal");
+          this.$bvModal.hide("transModal");
 
           //customize modal dialog message
           const h = this.$createElement;
           const messageVNode = h("div", { class: ["foobar"] }, [
             h("p", { class: ["text-left"] }, [
-              "Transaction successfully saved as draft with Document No.: ",
-              h("strong", `${res.data.trans_header[0].transaction_code}`),
+              "Transaction successfully saved as draft with ",
+              h("strong", "Document Number: "),
+              h("code", `${res.data.trans_header[0].transaction_code}`),
               " would you like to process transaction? ",
+            ]),
+          ]);
+
+          //msgbox process confirmation
+          this.fetchAllTransaction().then(() => {
+            this.setArEntries();
+            this.$bvModal
+              .msgBoxConfirm([messageVNode], {
+                title: "Successful",
+                size: "lg",
+                buttonSize: "lg",
+                okVariant: "success",
+                okTitle: "YES",
+                cancelTitle: "NO",
+                footerClass: "p-2",
+                hideHeaderClose: false,
+              })
+              .then((value) => {
+                if (value) {
+                  this.isLoading = true;
+                  this.doProecss(res.data.trans_header[0].transaction_id);
+                }
+              })
+              .catch((err) => {
+                // An error occurred
+              });
+          });
+        },
+        (err) => {
+          this.showAlert(err.response ? err.response.data.errorMsg : err, "danger");
+          this.isLoading = false;
+        }
+      );
+    },
+
+    async updateReceipt(trans_header, trans_line) {
+      //set seriesno and status to given object
+      trans_header.transaction_code = this.transModalForm.seriesNo;
+      trans_header.transaction_status = "DR";
+
+      console.log(JSON.stringify(trans_header));
+      console.log(JSON.stringify(trans_line));
+
+      //save here
+      await axios({
+        method: "PUT",
+        url: `${this.$axios.defaults.baseURL}/transaction/updateTransaction/${this.selectedTransId}`,
+        data: {
+          trans_header,
+          trans_line,
+        },
+      }).then(
+        (res) => {
+          this.isLoading = false;
+          this.showAlert("Successfully saved draft.", "success");
+          this.$bvModal.hide("transModal");
+
+          //customize modal dialog message
+          const h = this.$createElement;
+          const messageVNode = h("div", { class: ["foobar"] }, [
+            h("p", { class: ["text-left"] }, [
+              "Draft transaction with ",
+              h("strong", "Document Number: "),
+              h("code", `${res.data.trans_header[0].transaction_code}`),
+              " was successfully updated, would you like to process transaction? ",
             ]),
           ]);
 
@@ -630,13 +867,6 @@ export default {
         const dateFrom = new Date(new Date(this.dateFrom).toLocaleDateString()).getTime();
         const dateTo = new Date(new Date(this.dateTo).toLocaleDateString()).getTime();
         const dateTrans = new Date(val.dateTrans).getTime();
-
-        console.log("DateFrom: " + dateFrom);
-        console.log("DateTo: " + dateTo);
-        console.log("DateTrans: " + dateTrans);
-        console.log(dateTrans > dateFrom);
-        console.log(dateTrans < dateTo);
-
         return dateTrans >= dateFrom && dateTrans <= dateTo;
       }
 
@@ -699,47 +929,52 @@ export default {
     },
 
     doPrintReceipt(id) {
-      this.isLoading = true;
-      const item = this.getTransHeadById(id);
-
-      let productLine = [];
-      this.getLinesById(item.transaction_id).forEach(
-        function (val) {
-          productLine.push({
-            prodName: this.getProductById(val.product_id).prodName.toUpperCase(),
-            price: val.amount,
-            class: "bb1", //for report css class border bottom 1px
-          });
-        }.bind(this)
-      );
-
-      //set receipt details
-      const user = this.getUserById(item.user_id);
-      const tmpColOfficer = `${user.firstname} ${user.lastname}`;
-
-      this.receiptData = {
-        docno: item.transaction_code,
-        productLine,
-        payor: item.payor.toUpperCase(),
-        colOfficer: tmpColOfficer.toUpperCase(),
-        selectedPaymentType: item.payment_type.toUpperCase(),
-        draweeBank: item.bank_code.toUpperCase(),
-        number: item.check_no.toUpperCase(),
-        dateCheck: item.check_date ? new Date(item.check_date).toLocaleDateString() : "",
-        dateTrans: item.transaction_date
-          ? new Date(item.transaction_date).toLocaleDateString()
-          : "",
-      };
-
-      //trigger print dialog
+      this.$bvModal.hide("transModal");
       setTimeout(() => {
-        // this will render product lines in receipt
-        this.triggerPopulateReceipttRows();
-        this.$nextTick(() => {
-          window.print();
-          this.isLoading = false;
-        });
-      }, 1000);
+        this.isLoading = true;
+        const item = this.getTransHeadById(id);
+
+        let productLine = [];
+        this.getLinesById(item.transaction_id).forEach(
+          function (val) {
+            productLine.push({
+              prodName: this.getProductById(val.product_id).prodName.toUpperCase(),
+              price: val.amount,
+              class: "bb1", //for report css class border bottom 1px
+            });
+          }.bind(this)
+        );
+
+        //set receipt details
+        const user = this.getUserById(item.user_id);
+        const tmpColOfficer = `${user.firstname} ${user.lastname}`;
+
+        this.receiptData = {
+          docno: item.transaction_code,
+          productLine,
+          payor: item.payor.toUpperCase(),
+          colOfficer: tmpColOfficer.toUpperCase(),
+          selectedPaymentType: item.payment_type.toUpperCase(),
+          draweeBank: item.bank_code ? item.bank_code.toUpperCase() : "",
+          number: item.check_no.toUpperCase(),
+          dateCheck: item.check_date
+            ? new Date(item.check_date).toLocaleDateString()
+            : "",
+          dateTrans: item.transaction_date
+            ? new Date(item.transaction_date).toLocaleDateString()
+            : "",
+        };
+
+        //trigger print dialog
+        setTimeout(() => {
+          // this will render product lines in receipt
+          this.triggerPopulateReceipttRows();
+          this.$nextTick(() => {
+            window.print();
+            this.isLoading = false;
+          });
+        }, 1000);
+      }, 100);
     },
 
     triggerPopulateReceipttRows() {
@@ -789,8 +1024,10 @@ export default {
     },
 
     onInsertProduct() {
-      this.fetchProducts();
-      this.$bvModal.show("insertProdModal");
+      this.fetchProducts().then(() => {
+        this.setProductList();
+        this.$bvModal.show("insertProdModal");
+      });
     },
   },
 
@@ -806,6 +1043,9 @@ export default {
   beforeDestroy() {},
 
   computed: {
+    isActionView() {
+      return this.action == "VIEW";
+    },
     rows() {
       return this.arEntries.length;
     },
@@ -890,7 +1130,7 @@ export default {
   }
 }
 
-.newTransModal {
+.transModal {
   $boxShadow: 0px 0px 18px -3px rgba(0, 0, 0, 0.15);
 
   &__container {
@@ -910,5 +1150,13 @@ export default {
     padding: 20px;
     box-shadow: $boxShadow;
   }
+}
+
+code {
+  font-weight: bold;
+  color: crimson;
+  background-color: #f1f1f1;
+  padding: 2px;
+  font-size: 16px;
 }
 </style>

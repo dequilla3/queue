@@ -28,7 +28,7 @@ export default {
     };
   },
   mounted() {
-    // window.print();
+    window.print();
   },
 };
 </script>

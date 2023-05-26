@@ -8,7 +8,7 @@ export default {
     queueTicket,
   },
   mounted() {
-    // window.print();
+    window.print();
   },
 };
 </script>
