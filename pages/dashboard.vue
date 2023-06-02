@@ -364,7 +364,7 @@ td {
     margin-right: 5px;
     width: 43vw;
     color: rgb(228, 0, 0);
-    font-size: 3vh;
+    font-size: 30px;
     padding-top: 1vh;
   }
 }

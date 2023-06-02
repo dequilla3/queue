@@ -747,9 +747,6 @@ export default {
       trans_header.transaction_code = this.transModalForm.seriesNo;
       trans_header.transaction_status = "DR";
 
-      console.log(JSON.stringify(trans_header));
-      console.log(JSON.stringify(trans_line));
-
       //save here
       await axios({
         method: "PUT",
