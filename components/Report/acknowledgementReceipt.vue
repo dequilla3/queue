@@ -183,7 +183,7 @@ export default {
 }
 
 .report {
-  margin: 0.5in 24px 24px 24px;
+  margin: 0.5in 45px 24px 55px;
   border: 1px solid #000000;
 }
 
