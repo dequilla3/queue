@@ -4,7 +4,7 @@
       <p class="login__header-text mb-5">
         <img src="../assets/img/logo.png" class="logo" alt="" />
         PCIC XI Systems <br />
-        <i><sub>Version Beta</sub></i>
+        <i><sub>vBeta</sub></i>
       </p>
 
       <b-form class="login__form" @submit="userLogin">
@@ -49,7 +49,7 @@
         <template #modal-title>
           <p class="font-weight-bold">
             First login attempt, please update your password
-            <font-awesome-icon :icon="['fas', 'face-laugh']" />
+            <font-awesome-icon :icon="['fas', 'lock']" />
           </p>
         </template>
 
