@@ -36,7 +36,10 @@ export default {
         .then((value) => {
           if (value) {
             this.$router.push({ path: "/" });
+            //clear storage  except dashboard running text
+            const runText = localStorage.runningText;
             localStorage.clear();
+            localStorage.runningText = runText;
           }
         })
         .catch((err) => {
