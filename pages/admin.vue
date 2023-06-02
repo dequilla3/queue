@@ -117,6 +117,22 @@
             ></b-form-input>
           </b-form-group>
 
+          <b-form-group
+            v-if="action == 'add'"
+            id="input-uname"
+            label="Username:"
+            label-for="input-uname"
+          >
+            <b-form-input
+              id="input-uname"
+              v-model="user.userName"
+              type="text"
+              placeholder="GENERATED USERNAME"
+              required
+              disabled
+            ></b-form-input>
+          </b-form-group>
+
           <b-form-group id="select-role" label="Select Role:" label-for="select-role">
             <b-form-select
               id="select-role"
@@ -182,6 +198,7 @@ export default {
         firstName: "",
         middleName: "",
         lastName: "",
+        userName: "",
         role: null,
       },
 
@@ -241,6 +258,7 @@ export default {
         firstName: item.firstname,
         middleName: item.middlename,
         lastName: item.lastname,
+        userName: item.username,
         role: item.user_role,
       };
 
@@ -313,14 +331,13 @@ export default {
 
     async doSaveUser() {
       const isAdd = this.action == "add";
-      const userName = this.generateUserName();
       const data = isAdd
         ? {
             firstName: this.user.firstName,
             middleName: this.user.middleName,
             lastName: this.user.lastName,
-            username: userName,
-            user_password: userName, //for default password same as username
+            username: this.user.userName.toLowerCase(),
+            user_password: this.user.userName.toLowerCase(), //by default password same as username
             user_role: this.user.role,
           }
         : {
@@ -342,6 +359,7 @@ export default {
             firstName: "",
             middleName: "",
             lastName: "",
+            userName: "",
             role: "",
           };
           this.$bvModal.hide("userModal");
@@ -366,7 +384,8 @@ export default {
       firstNameSplit.forEach(function (val) {
         firstChar += val.charAt(0);
       });
-      return firstChar + this.user.lastName;
+
+      this.user.userName = firstChar + this.user.lastName;
     },
 
     async fetchAllUsers() {
@@ -393,10 +412,24 @@ export default {
       );
     },
   },
+
+  watch: {
+    "user.firstName": function () {
+      this.generateUserName();
+    },
+    "user.lastName": function () {
+      this.generateUserName();
+    },
+  },
+
   created() {
     this.fetchAllUsers();
   },
+
+  beforeDestroy() {},
+
   mounted() {},
+
   computed: {
     rows() {
       return this.userList.length;
