@@ -1,10 +1,13 @@
 <template>
   <div>
     <div class="login">
+      <timeBomb />
       <p class="login__header-text mb-5">
         <img src="../assets/img/logo.png" class="logo" alt="" />
         PCIC XI Systems <br />
-        <i><sub>vBeta</sub></i>
+        <i
+          ><sub>{{ version }}</sub></i
+        >
       </p>
 
       <b-form class="login__form" @submit="userLogin">
@@ -120,9 +123,9 @@
 import axios from "axios";
 export default {
   name: "IndexPage",
-
   data() {
     return {
+      version: "",
       resLogin: "",
       isLoading: false,
       uName: "",
@@ -263,6 +266,7 @@ export default {
 
   mounted() {
     localStorage.role = "";
+    this.version = process.env.VERSION;
   },
 
   computed: {

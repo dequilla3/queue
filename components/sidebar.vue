@@ -3,7 +3,9 @@
     <ul>
       <li class="brand">
         <img class="brand__img" src="../assets/img/logo.png" alt="" />
-        <label>PCIC XI</label>
+        <label
+          >PCIC XI <br /><sub>{{ version }}</sub></label
+        >
       </li>
       <hr />
       <li
@@ -28,6 +30,7 @@ export default {
   name: "sidebar",
   data() {
     return {
+      version: "",
       barIsClicked: true,
       modules: [
         {
@@ -131,6 +134,7 @@ export default {
 
   mounted() {
     this.setActiveModule(localStorage.activeMenu);
+    this.version = process.env.VERSION;
   },
 };
 </script>

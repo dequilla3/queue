@@ -1,17 +1,7 @@
 <template>
   <div>
     <logout mode="light" pos="left" />
-    <b-form-checkbox
-      class="switchCb"
-      v-model="isSoundOn"
-      name="check-button"
-      switch
-      size="lg"
-      @change="onOffSound()"
-    >
-      {{ `${isSoundOn ? "OFF" : "ON"} AUDIO` }}
-    </b-form-checkbox>
-
+    <timeBomb />
     <div class="dashboard">
       <div class="dashboard__content">
         <div class="dashboard__vid">
@@ -79,6 +69,17 @@
           max-rows="6"
         ></b-form-textarea>
       </b-modal>
+
+      <b-modal
+        id="popUp"
+        title="Information!"
+        ok-only
+        no-close-on-esc
+        no-close-on-backdrop
+        hide-header-close
+      >
+        <p class="my-4">Please make sure audio at high volume.</p>
+      </b-modal>
     </div>
   </div>
 </template>
@@ -88,7 +89,6 @@ import moment from "moment";
 import logo from "../assets/img/logo.png";
 import logout from "../components/logout.vue";
 import { Howl } from "howler";
-import { speak } from "../util/textToSpeech";
 
 export default {
   name: "dashboard",
@@ -97,7 +97,6 @@ export default {
   },
   data() {
     return {
-      isSoundOn: false,
       sound: new Howl({
         src: ["attention.mp3"],
       }),
@@ -148,17 +147,6 @@ export default {
   },
 
   methods: {
-    onOffSound() {
-      if (this.isSoundOn) {
-        this.sound = new Howl({
-          src: ["attention.mp3"],
-        });
-      } else {
-        this.sound = new Howl({
-          src: ["no-audio-zxc.mp3"],
-        });
-      }
-    },
     editRunningText() {
       this.$bvModal.show("edit_runningtext_modal");
     },
@@ -227,7 +215,8 @@ export default {
   },
 
   mounted() {
-    this.onOffSound();
+    this.$bvModal.show("popUp");
+
     this.intervalOngoing = setInterval(() => {
       this.fetchQueueListPerWindow();
     }, 1000);
@@ -334,7 +323,7 @@ td {
 }
 
 .td--queue_number {
-  color: #ff5047;
+  color: #ff0d00;
   font-size: 70px;
   font-weight: bolder;
   letter-spacing: 0.1em;

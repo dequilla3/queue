@@ -1,6 +1,7 @@
 <template>
   <div>
     <sidebar />
+    <timeBomb />
     <div class="admin">
       <b-tabs
         card

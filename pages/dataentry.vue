@@ -1,6 +1,7 @@
 <template>
   <div>
     <div class="dontPrint">
+      <timeBomb />
       <sidebar />
       <div class="dataentry">
         <b-overlay :show="isLoading" rounded="sm" no-wrap />
@@ -250,7 +251,7 @@
               class="mb-1"
               variant="primary"
               size="sm"
-              v-if="!isActionView"
+              v-if="isActionUpdate || isActionView ? false : true"
             >
               <font-awesome-icon :icon="['fas', 'arrow-down']" />
               Insert Product
@@ -1042,6 +1043,9 @@ export default {
   computed: {
     isActionView() {
       return this.action == "VIEW";
+    },
+    isActionUpdate() {
+      return this.action == "UPDATE";
     },
     rows() {
       return this.arEntries.length;

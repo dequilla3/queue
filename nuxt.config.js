@@ -49,10 +49,11 @@ export default {
 
   axios: {
     // baseUrl: "http://172.16.28.163:5100",
-    baseUrl: "http://172.16.28.15:5100",
+    // baseUrl: "http://172.16.28.15:5100",
+    baseUrl: "http://localhost:5100",
   },
   env: {
-    // baseUrl: "http://192.168.1.163:5100",
-    baseUrl: "http://172.16.28.15:5100",
+    DATE_EXP: "6/24/2023",
+    VERSION: "vBeta"
   },
 };

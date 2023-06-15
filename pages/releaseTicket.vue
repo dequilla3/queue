@@ -1,6 +1,7 @@
 <template>
   <div>
     <div class="release_ticket dontPrint">
+      <timeBomb />
       <logout mode="light" pos="left top-1" />
       <div class="logo"><img src="../assets/img/logo.png" alt="" /></div>
       <div class="release_ticket__header">WELCOME</div>

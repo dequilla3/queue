@@ -1,6 +1,7 @@
 <template>
   <div>
     <div class="dontPrint">
+      <timeBomb />
       <sidebar />
       <div class="counter_container dontPrint">
         <div class="counter_container__main">
