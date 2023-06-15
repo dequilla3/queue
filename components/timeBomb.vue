@@ -52,10 +52,6 @@ export default {
   mounted() {
     this.dateExp = process.env.DATE_EXP;
 
-    if (new Date(this.getDate) < new Date(process.env.DATE_EXP)) {
-      this.$bvModal.show("timeBombWarning");
-    }
-
     this.interval = setInterval(() => {
       if (this.getDate == process.env.DATE_EXP) {
         this.$bvModal.show("timeBomb");
