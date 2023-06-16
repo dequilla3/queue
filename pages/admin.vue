@@ -8,6 +8,7 @@
         small
         active-nav-item-class="font-weight-bold text-uppercase text-primary"
       >
+        <!-- USER TAB -->
         <b-tab title="ADD USER">
           <div class="mt-3">
             <b-button variant="primary" @click="onAddUser()">
@@ -73,8 +74,44 @@
             ></b-pagination>
           </div>
         </b-tab>
+
+        <!-- PRODUCT TAB -->
+        <b-tab title="ADD PRODUCT">
+          <div class="mt-3">
+            <b-button variant="primary" @click="onAddProduct()">
+              <font-awesome-icon :icon="['fas', 'user-plus']" />
+              Add Product
+            </b-button>
+
+            <div class="admin__tooltip mt-3">
+              <b-form-input
+                class="admin__tooltip__input mr-1"
+                placeholder="Search . . ."
+                v-model="inputSearch"
+                @keyup.enter="fetchAllProducts()"
+              />
+            </div>
+
+            <b-table
+              class="admin__table mt-4"
+              hover
+              :items="prodList"
+              :fields="prodTblFields"
+              :per-page="perPage"
+              :current-page="currentPage"
+            >
+            </b-table>
+            <b-pagination
+              v-model="currentPage"
+              :total-rows="rows"
+              :per-page="perPage"
+              aria-controls="my-table"
+            ></b-pagination>
+          </div>
+        </b-tab>
       </b-tabs>
 
+      <!-- USER MODAL -->
       <b-modal
         class="userModal"
         id="userModal"
@@ -155,6 +192,45 @@
           </div>
         </b-form>
       </b-modal>
+
+      <!-- PRODUCT MODAL -->
+      <b-modal
+        class="prodModal"
+        id="prodModal"
+        :title="userModalTitle"
+        size="sm"
+        no-close-on-backdrop
+        hide-footer
+        centered
+      >
+        <b-form @submit="onSaveProd">
+          <b-form-group
+            id="input-prodName"
+            label="Product Name:"
+            label-for="input-prodName"
+          >
+            <b-form-input
+              id="input-prodName"
+              v-model="prodName"
+              type="text"
+              placeholder="Enter product name"
+              required
+              style="text-transform: uppercase"
+            ></b-form-input>
+          </b-form-group>
+
+          <hr class="mt-4" />
+          <div class="w-100">
+            <b-button size="sm" variant="primary" class="float-right ml-1" type="submit">
+              <font-awesome-icon :icon="['fas', 'plus']" /> Add Product
+              <b-spinner small v-show="loadingOnSave" />
+            </b-button>
+            <b-button size="sm" @click="$bvModal.hide('prodModal')" class="float-right">
+              <font-awesome-icon :icon="['fas', 'xmark']" /> Cancel
+            </b-button>
+          </div>
+        </b-form>
+      </b-modal>
     </div>
 
     <b-alert
@@ -203,6 +279,8 @@ export default {
         role: null,
       },
 
+      prodName: "",
+
       action: "",
       userModalTitle: "",
       selectedRole: "",
@@ -227,6 +305,9 @@ export default {
         { key: "user_role", label: "User Role" },
         { key: "action", label: "Actions" },
       ],
+
+      prodList: [],
+      prodTblFields: [{ key: "prod_name", label: "Product Name" }],
     };
   },
   methods: {
@@ -238,6 +319,11 @@ export default {
         variant,
         message,
       };
+    },
+
+    onAddProduct() {
+      this.prodName = "";
+      this.$bvModal.show("prodModal");
     },
 
     onAddUser() {
@@ -378,6 +464,54 @@ export default {
       );
     },
 
+    onSaveProd(e) {
+      e.preventDefault();
+      this.loadingOnSave = true;
+
+      this.$bvModal
+        .msgBoxConfirm("Are you sure you want to Save product?", {
+          title: "Please Confirm",
+          size: "sm",
+          buttonSize: "sm",
+          okVariant: "primary",
+          okTitle: "YES",
+          cancelTitle: "NO",
+          footerClass: "p-2",
+          centered: true,
+        })
+        .then((value) => {
+          if (value) this.doSaveProd();
+          this.loadingOnSave = false;
+        })
+        .catch((err) => {
+          this.loadingOnSave = false;
+          this.showAlert(err, "danger");
+        });
+    },
+
+    async doSaveProd() {
+      await axios({
+        method: "POST",
+        url: `${this.$axios.defaults.baseURL}/product/addProduct`,
+        data: {
+          prod_name: this.prodName,
+          retail_amt: 0.0,
+        },
+      }).then(
+        () => {
+          this.prodName = "";
+          this.$bvModal.hide("prodModal");
+          this.showAlert(`Successfully added product.`, "success");
+
+          this.loadingOnSave = false;
+          this.fetchAllProducts();
+        },
+        (err) => {
+          this.showAlert(err.response.data.errorMsg, "danger");
+        }
+      );
+    },
+
     generateUserName() {
       const firstNameSplit = this.user.firstName.split(" ");
       let firstChar = "";
@@ -412,6 +546,24 @@ export default {
         }
       );
     },
+
+    async fetchAllProducts() {
+      return await axios({
+        method: "GET",
+        url: `${this.$axios.defaults.baseURL}/product/getAllProduct`,
+      }).then(
+        (res) => {
+          this.prodList = res.data.filter(
+            function (val) {
+              return val.prod_name.includes(this.inputSearch);
+            }.bind(this)
+          );
+        },
+        (err) => {
+          this.showAlert(err, "danger");
+        }
+      );
+    },
   },
 
   watch: {
@@ -425,6 +577,7 @@ export default {
 
   created() {
     this.fetchAllUsers();
+    this.fetchAllProducts();
   },
 
   beforeDestroy() {},

@@ -166,22 +166,6 @@
               </b-form-group>
 
               <b-form-group
-                id="dateTrans-group"
-                label="Date Transaction:"
-                label-for="input-dateTrans"
-                v-if="isActionView"
-              >
-                <b-form-input
-                  class="text-uppercase"
-                  id="input-dateTrans"
-                  v-model="transModalForm.dateTrans"
-                  type="text"
-                  required
-                  disabled
-                ></b-form-input>
-              </b-form-group>
-
-              <b-form-group
                 id="payor-group"
                 label="Payor Name:"
                 label-for="input-dateTrans"
@@ -195,6 +179,15 @@
                   required
                   :disabled="isActionView"
                 ></b-form-input>
+              </b-form-group>
+
+              <b-form-group id="date-check" label="Date:" label-for="input-dateTrans">
+                <b-form-datepicker
+                  required
+                  id="date-check"
+                  v-model="transModalForm.dateTrans"
+                  :disabled="isActionView"
+                ></b-form-datepicker>
               </b-form-group>
 
               <b-form-group label="Payment type:" v-slot="{ ariaDescribedby }">
@@ -540,6 +533,7 @@ export default {
         draweeBank: "",
         number: "",
         dateCheck: null,
+        dateTrans: new Date(),
       };
 
       switch (action) {
