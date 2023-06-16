@@ -654,7 +654,7 @@ export default {
         amount: this.getTotalAmount,
         payment_type: this.transModalForm.selectedPaymentType,
         check_no: this.transModalForm.number.toUpperCase(),
-        transaction_date: new Date().toLocaleDateString(),
+        transaction_date: this.transModalForm.dateTrans,
         user_id: localStorage.user_id,
         check_date: this.transModalForm.dateCheck,
         bank_code: this.transModalForm.draweeBank,
