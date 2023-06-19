@@ -4,6 +4,14 @@
       <timeBomb />
       <sidebar />
       <div class="counter_container dontPrint">
+        <b-button
+          @click="$bvModal.show('reportParam')"
+          class="btn-print"
+          pill
+          variant="primary"
+        >
+          <font-awesome-icon style="font-size: 20px" icon="fa-solid fa-print"
+        /></b-button>
         <div class="counter_container__main">
           <div class="counter_container__main__text">
             <h2 class="mb-5">{{ getWindDesc }}</h2>
@@ -111,6 +119,40 @@
           </template>
         </b-modal>
 
+        <b-modal id="reportParam">
+          <label for="dateFrom">Date From:</label>
+          <b-form-datepicker
+            class="mr-1 mb-1"
+            v-model="dateFrom"
+            locale="en"
+            :date-format-options="{ year: 'numeric', month: 'numeric', day: 'numeric' }"
+          />
+
+          <label for="dateTo">Date To:</label>
+          <b-form-datepicker
+            class="mr-1"
+            v-model="dateTo"
+            locale="en"
+            :date-format-options="{ year: 'numeric', month: 'numeric', day: 'numeric' }"
+          />
+
+          <template #modal-footer>
+            <div class="w-100">
+              <b-button
+                variant="primary"
+                size="sm"
+                class="float-right"
+                @click="show = false"
+              >
+                <font-awesome-icon icon="fa-solid fa-print" /> Print
+              </b-button>
+              <b-button size="sm" class="float-right mr-1" @click="show = false">
+                Cancel
+              </b-button>
+            </div>
+          </template>
+        </b-modal>
+
         <b-alert
           :show="alert.showAlert"
           dismissible
@@ -147,6 +189,9 @@ export default {
   },
   data() {
     return {
+      dateFrom: "",
+      dateTo: "",
+
       donePost: true,
       lblSearch: "",
 
@@ -429,6 +474,12 @@ export default {
           this.showAlert(err, "danger");
         });
     },
+
+    async getQueueReports() {
+      await this.$store.dispatch("reports/getAllQueue").then((res) => {
+        console.log(res.data);
+      });
+    },
   },
 
   mounted() {
@@ -454,7 +505,9 @@ export default {
     clearInterval(this.roleCheckInterval);
   },
 
-  created() {},
+  created() {
+    this.getQueueReports();
+  },
 
   computed: {
     getRole() {
@@ -535,5 +588,12 @@ export default {
     width: 60px;
     height: 60px;
   }
+}
+
+.btn-print {
+  position: absolute;
+  left: 100px;
+  bottom: 20px;
+  padding: 20px;
 }
 </style>

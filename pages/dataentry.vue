@@ -60,8 +60,20 @@
             <font-awesome-icon :icon="['fas', 'filter']" />
           </b-button>
 
-          <b-button title="Reset filter parameter" @click="resetFilterParams()">
+          <b-button
+            class="mr-1"
+            title="Reset filter parameter"
+            @click="resetFilterParams()"
+          >
             <font-awesome-icon :icon="['fas', 'rotate-right']" />
+          </b-button>
+
+          <b-button
+            @click="onPrintReport()"
+            v-if="selectedStatus == 'pr'"
+            title="Print report"
+          >
+            <font-awesome-icon :icon="['fas', 'print']" />
           </b-button>
         </div>
 
@@ -84,7 +96,7 @@
           </template>
 
           <template #cell(totalAmt)="row">
-            {{ getRoundOff(row.item.totalAmt) }}
+            &#8369; {{ numberWithCommas(getRoundOff(row.item.totalAmt)) }}
           </template>
 
           <template #cell(action)="row">
@@ -368,6 +380,7 @@
       </b-alert>
     </div>
     <acknowledgementReceipt
+      v-if="isPrintReceipt"
       class="print"
       ref="ar"
       :docno="this.receiptData.docno"
@@ -380,6 +393,14 @@
       :dateCheck="this.receiptData.dateCheck"
       :dateTrans="this.receiptData.dateTrans"
     />
+
+    <arReport
+      v-if="isPrintReport"
+      class="print"
+      :transactions="transactionsReport"
+      :dateFrom="dateFrom"
+      :dateTo="dateFrom"
+    />
   </div>
 </template>
 
@@ -387,15 +408,21 @@
 import sidebar from "../components/sidebar.vue";
 import axios from "axios";
 import acknowledgementReceipt from "../components/Report/acknowledgementReceipt.vue";
+import arReport from "../components/Report/arReport.vue";
 
 export default {
   components: {
     sidebar,
     acknowledgementReceipt,
+    arReport,
   },
 
   data() {
     return {
+      transactionsReport: [],
+      isPrintReport: false,
+      isPrintReceipt: false,
+
       selectedTransId: "",
       action: "VIEW",
       transModalTitle: "",
@@ -487,6 +514,39 @@ export default {
   },
 
   methods: {
+    numberWithCommas(x) {
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    },
+    getRoundOff(num) {
+      num = Number(num);
+      return (Math.round(num * 100) / 100).toFixed(2);
+    },
+    onPrintReport() {
+      this.isPrintReceipt = false;
+      this.isPrintReport = true;
+      this.$bvModal.hide("transModal");
+
+      this.transactionsReport = [];
+
+      this.arEntries.forEach(
+        function (val) {
+          this.transactionsReport.push({
+            dateTrans: val.dateTrans,
+            arNo: val.docnum,
+            payorName: val.payor,
+            amt: val.totalAmt,
+            pmtType: val.transType,
+            drawee: val.bank,
+            checkNo: val.checkNo,
+            dateCheck: val.checkDate,
+          });
+        }.bind(this)
+      );
+
+      setTimeout(() => {
+        window.print();
+      }, 1000);
+    },
     resetFilterParams() {
       this.inpSrchEntries = "";
       this.dateFrom = "";
@@ -921,6 +981,9 @@ export default {
     },
 
     doPrintReceipt(id) {
+      this.isPrintReceipt = true;
+      this.isPrintReport = false;
+
       this.$bvModal.hide("transModal");
       setTimeout(() => {
         this.isLoading = true;
