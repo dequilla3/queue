@@ -36,7 +36,7 @@
             <tbody>
               <tr v-for="(item, index) in windowQueue" :key="index">
                 <td class="td--window">{{ item.windowDesc }}</td>
-                <td class="td--queue_number">
+                <td :class="`td--queue_number ${item.class}`">
                   {{ `${item.tCode}${String(item.qNum).padStart(3, "0")}` }}
                 </td>
               </tr>
@@ -113,6 +113,7 @@ export default {
           tCode: "M",
           qNum: 0,
           wCode: "w1",
+          class: "",
         },
         {
           windowId: 2,
@@ -120,6 +121,7 @@ export default {
           tCode: "C",
           qNum: 0,
           wCode: "w2",
+          class: "",
         },
         {
           windowId: 3,
@@ -127,6 +129,7 @@ export default {
           tCode: "P",
           qNum: 0,
           wCode: "w3",
+          class: "",
         },
         {
           windowId: 4,
@@ -134,6 +137,7 @@ export default {
           tCode: "A",
           qNum: 0,
           wCode: "w4",
+          class: "",
         },
         {
           windowId: 5,
@@ -141,6 +145,7 @@ export default {
           tCode: "T",
           qNum: 0,
           wCode: "w5",
+          class: "",
         },
       ],
     };
@@ -173,23 +178,29 @@ export default {
     },
 
     async fetchQueueList(val) {
-      await this.$store.dispatch("counter/getAllQueueList", val.wCode).then((res) => {
-        let ongoing = res.data.filter(function (val) {
-          return val.status == "ONGOING";
+      await this.$store
+        .dispatch("counter/getAllQueueList", val.wCode)
+        .then((res) => {
+          let ongoing = res.data.filter(function (val) {
+            return val.status == "ONGOING";
+          });
+
+          let newQnum = ongoing[0] ? ongoing[0].queue_num : 0;
+
+          /**
+           * CONDITION:
+           *    - IF new queue number is not equal current queue number
+           *      and IF new queue number is not equal to 0 wil play the audio
+           */
+          if (newQnum != val.qNum) {
+            val.qNum = newQnum;
+            val.class = "queueColor";
+            this.playSound(newQnum);
+            setTimeout(() => {
+              val.class = "";
+            }, 1000);
+          }
         });
-
-        let newQnum = ongoing[0] ? ongoing[0].queue_num : 0;
-
-        /**
-         * CONDITION:
-         *    - IF new queue number is not equal current queue number
-         *      and IF new queue number is not equal to 0 wil play the audio
-         */
-        if (newQnum != val.qNum) {
-          val.qNum = newQnum;
-          this.playSound(newQnum);
-        }
-      });
     },
 
     async playSound(newQnum) {
@@ -285,7 +296,7 @@ video {
       margin-top: 5px;
       margin-right: 5px;
       color: white;
-      background: yellowgreen;
+      background: rgb(0, 116, 0);
       &__title {
         -webkit-text-stroke: 0.3px black;
         font-size: 2vh;
@@ -312,6 +323,7 @@ th {
 td {
   border: 1px solid #2e2e2e;
   padding-left: 20px;
+  transition: 1s;
 }
 
 .td--window {
@@ -322,13 +334,31 @@ td {
   text-shadow: 4px 4px 6px rgba(0, 0, 0, 0.5);
 }
 
+@media only screen and (max-width: 1280px) {
+  td {
+    padding: 0 10px;
+  }
+  .td--window {
+    font-size: 30px;
+  }
+}
+
 .td--queue_number {
-  color: #ff0d00;
+  color: #ff342a;
   font-size: 70px;
   font-weight: bolder;
   letter-spacing: 0.1em;
   text-shadow: 4px 4px 6px rgba(0, 0, 0, 0.5);
   -webkit-text-stroke: 1px white;
+}
+.queueColor {
+  color: #f7a5a0;
+}
+
+@media only screen and (min-width: 1920px) {
+  .td--queue_number {
+    font-size: 100px;
+  }
 }
 
 .bottom_section {
@@ -352,9 +382,38 @@ td {
     margin-bottom: 5px;
     margin-right: 5px;
     width: 43vw;
-    color: rgb(228, 0, 0);
+    color: rgb(0, 0, 0);
     font-size: 30px;
     padding-top: 1vh;
+  }
+}
+
+@media only screen and (max-width: 1280px) {
+  .bottom_section {
+    width: 100%;
+    font-size: 20px;
+    font-weight: bold;
+    background: green;
+    color: white;
+    text-align: center;
+    height: 8vh;
+    display: flex;
+    &__running_text {
+      font-size: 30px;
+      width: 100vw;
+    }
+    &__time {
+      background: white;
+      height: 7vh;
+      text-align: center;
+      margin-top: 5px;
+      margin-bottom: 5px;
+      margin-right: 5px;
+      width: 43vw;
+      color: rgb(0, 0, 0);
+      font-size: 20px;
+      padding-top: 1vh;
+    }
   }
 }
 </style>

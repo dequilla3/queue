@@ -13,7 +13,7 @@
           :key="index"
           class="window_container__item"
         >
-          <h6 class="window_container__item__header">{{ wind.desc }}</h6>
+          <h5 class="window_container__item__header">{{ wind.desc }}</h5>
           <button
             v-for="(trans, index) in wind.transactions"
             :key="index"
@@ -48,7 +48,9 @@
             >FEMALE</b-button
           >
 
-          <b-button @click="$bvModal.hide('gender_modal')" variant="danger w-100 mt-5"
+          <b-button
+            @click="$bvModal.hide('gender_modal')"
+            variant="danger w-100 mt-5"
             ><font-awesome-icon icon="fa-solid fa-close" />
             CANCEL
           </b-button>

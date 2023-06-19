@@ -20,6 +20,7 @@
             </p>
           </div>
         </div>
+
         <div class="counter_container__actions">
           <div class="logo">
             <img class="logo__img mr-2" src="../assets/img/logo.png" alt="" />
@@ -94,7 +95,12 @@
               aria-label="Enter text here..."
             ></b-form-input>
           </b-input-group>
-          <b-table sticky-header hover :items="filteredHold()" :fields="tblHeldNumFields">
+          <b-table
+            sticky-header
+            hover
+            :items="filteredHold()"
+            :fields="tblHeldNumFields"
+          >
             <template #cell(queue_num)="row">
               <h2>{{ row.item.queue_num }}</h2>
             </template>
@@ -125,7 +131,11 @@
             class="mr-1 mb-1"
             v-model="dateFrom"
             locale="en"
-            :date-format-options="{ year: 'numeric', month: 'numeric', day: 'numeric' }"
+            :date-format-options="{
+              year: 'numeric',
+              month: 'numeric',
+              day: 'numeric',
+            }"
           />
 
           <label for="dateTo">Date To:</label>
@@ -133,7 +143,11 @@
             class="mr-1"
             v-model="dateTo"
             locale="en"
-            :date-format-options="{ year: 'numeric', month: 'numeric', day: 'numeric' }"
+            :date-format-options="{
+              year: 'numeric',
+              month: 'numeric',
+              day: 'numeric',
+            }"
           />
 
           <template #modal-footer>
@@ -146,7 +160,11 @@
               >
                 <font-awesome-icon icon="fa-solid fa-print" /> Print
               </b-button>
-              <b-button size="sm" class="float-right mr-1" @click="show = false">
+              <b-button
+                size="sm"
+                class="float-right mr-1"
+                @click="show = false"
+              >
                 Cancel
               </b-button>
             </div>
@@ -402,7 +420,10 @@ export default {
     },
 
     async fetchAllQueueList() {
-      return await this.$store.dispatch("counter/getAllQueueList", localStorage.role);
+      return await this.$store.dispatch(
+        "counter/getAllQueueList",
+        localStorage.role
+      );
     },
 
     getQueueNum() {
@@ -548,9 +569,9 @@ export default {
     width: 70vw;
     &__text {
       text-align: center;
-      margin-top: 20vh;
+      margin-top: 40px;
       &__num {
-        font-size: 120px;
+        font-size: 80px;
         font-weight: bold;
         margin-left: 30vh;
         margin-right: 30vh;
@@ -576,6 +597,20 @@ export default {
 
 .icn {
   font-size: 40px;
+}
+
+@media only screen and (max-width: 1280px) {
+  .counter_container {
+    &__actions {
+      &__btn {
+        font-size: 20px;
+      }
+    }
+  }
+
+  .icn {
+    font-size: 20px;
+  }
 }
 
 .logo {
