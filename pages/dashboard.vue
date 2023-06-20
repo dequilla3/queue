@@ -48,6 +48,7 @@
         <div class="marquee">
           <p>{{ runningText }}</p>
         </div>
+
         <div class="bottom_section__time">
           {{ dateNow.toString().toUpperCase() }}
         </div>
@@ -178,29 +179,50 @@ export default {
     },
 
     async fetchQueueList(val) {
-      await this.$store
-        .dispatch("counter/getAllQueueList", val.wCode)
-        .then((res) => {
-          let ongoing = res.data.filter(function (val) {
-            return val.status == "ONGOING";
-          });
-
-          let newQnum = ongoing[0] ? ongoing[0].queue_num : 0;
-
-          /**
-           * CONDITION:
-           *    - IF new queue number is not equal current queue number
-           *      and IF new queue number is not equal to 0 wil play the audio
-           */
-          if (newQnum != val.qNum) {
-            val.qNum = newQnum;
-            val.class = "queueColor";
-            this.playSound(newQnum);
-            setTimeout(() => {
-              val.class = "";
-            }, 1000);
-          }
+      await this.$store.dispatch("counter/getAllQueueList", val.wCode).then((res) => {
+        let ongoing = res.data.filter(function (val) {
+          return val.status == "ONGOING";
         });
+
+        let newQnum = ongoing[0] ? ongoing[0].queue_num : 0;
+
+        /**
+         * CONDITION:
+         *    - IF new queue number is not equal current queue number
+         *      and IF new queue number is not equal to 0 wil play the audio
+         */
+        if (newQnum != val.qNum) {
+          val.qNum = newQnum;
+          this.splashQueueNum(val);
+          this.playSound(newQnum);
+          setTimeout(() => {
+            val.class = "";
+          }, 100);
+        }
+      });
+    },
+
+    splashQueueNum(val) {
+      val.class = "queueColor";
+      setTimeout(() => {
+        val.class = "";
+      }, 100);
+
+      setTimeout(() => {
+        val.class = "queueColor";
+      }, 300);
+
+      setTimeout(() => {
+        val.class = "";
+      }, 500);
+
+      setTimeout(() => {
+        val.class = "queueColor";
+      }, 700);
+
+      setTimeout(() => {
+        val.class = "";
+      }, 900);
     },
 
     async playSound(newQnum) {
@@ -323,7 +345,7 @@ th {
 td {
   border: 1px solid #2e2e2e;
   padding-left: 20px;
-  transition: 1s;
+  transition: 0.5s;
 }
 
 .td--window {
@@ -352,7 +374,8 @@ td {
   -webkit-text-stroke: 1px white;
 }
 .queueColor {
-  color: #f7a5a0;
+  color: #ffffff;
+  text-shadow: 6px -1px 50px rgba(255, 0, 0, 1);
 }
 
 @media only screen and (min-width: 1920px) {
@@ -370,49 +393,25 @@ td {
   text-align: center;
   height: 8vh;
   display: flex;
-  &__running_text {
-    font-size: 30px;
-    width: 100vw;
-  }
+
   &__time {
     background: white;
-    height: 7vh;
     text-align: center;
     margin-top: 5px;
     margin-bottom: 5px;
     margin-right: 5px;
-    width: 43vw;
+    width: 43.1vw;
     color: rgb(0, 0, 0);
     font-size: 30px;
-    padding-top: 1vh;
+    padding-top: 10px;
   }
 }
 
 @media only screen and (max-width: 1280px) {
   .bottom_section {
-    width: 100%;
-    font-size: 20px;
-    font-weight: bold;
-    background: green;
-    color: white;
-    text-align: center;
-    height: 8vh;
-    display: flex;
-    &__running_text {
-      font-size: 30px;
-      width: 100vw;
-    }
     &__time {
-      background: white;
-      height: 7vh;
-      text-align: center;
-      margin-top: 5px;
-      margin-bottom: 5px;
-      margin-right: 5px;
-      width: 43vw;
-      color: rgb(0, 0, 0);
-      font-size: 20px;
-      padding-top: 1vh;
+      font-size: 18px;
+      padding-top: 10px;
     }
   }
 }
