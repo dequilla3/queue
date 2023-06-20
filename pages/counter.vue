@@ -10,21 +10,36 @@
           pill
           variant="primary"
         >
-          <font-awesome-icon style="font-size: 20px" icon="fa-solid fa-print"
+          <font-awesome-icon style="font-size: 16px" icon="fa-solid fa-print"
         /></b-button>
         <div class="counter_container__main">
           <div class="counter_container__main__text">
-            <h2 class="mb-5">{{ getWindDesc }}</h2>
+            <b class="f18">{{ getWindDesc }}</b>
+            <br />
+            <b>CURRENT SERVING</b>
             <p class="counter_container__main__text__num">
               {{ getQueueNum() }}
             </p>
+          </div>
+
+          <br />
+
+          <div>
+            <b-table
+              class="queueTbl"
+              sticky-header="60vh"
+              :items="queues"
+              :fields="queueTblFields"
+              :tbody-tr-class="setQueueTblBg"
+            >
+            </b-table>
           </div>
         </div>
 
         <div class="counter_container__actions">
           <div class="logo">
             <img class="logo__img mr-2" src="../assets/img/logo.png" alt="" />
-            <p>
+            <p class="logo__txt">
               PHILIPPINE CROP <br />
               INSURANCE CORPORATION <br />
               REGION XI
@@ -95,12 +110,7 @@
               aria-label="Enter text here..."
             ></b-form-input>
           </b-input-group>
-          <b-table
-            sticky-header
-            hover
-            :items="filteredHold()"
-            :fields="tblHeldNumFields"
-          >
+          <b-table sticky-header hover :items="filteredHold()" :fields="tblHeldNumFields">
             <template #cell(queue_num)="row">
               <h2>{{ row.item.queue_num }}</h2>
             </template>
@@ -160,11 +170,7 @@
               >
                 <font-awesome-icon icon="fa-solid fa-print" /> Print
               </b-button>
-              <b-button
-                size="sm"
-                class="float-right mr-1"
-                @click="show = false"
-              >
+              <b-button size="sm" class="float-right mr-1" @click="show = false">
                 Cancel
               </b-button>
             </div>
@@ -207,6 +213,14 @@ export default {
   },
   data() {
     return {
+      perPage: 10,
+      queues: [],
+      queueTblFields: [
+        { key: "status", label: "Status" },
+        { key: "queue_num", label: "Queue #" },
+        { key: "gender", label: "Gender" },
+      ],
+
       dateFrom: "",
       dateTo: "",
 
@@ -375,6 +389,7 @@ export default {
             this.donePost = true;
             localStorage.ongoing = this.ongoing;
           }
+          this.loadQueueTbl();
           this.showOverlayNext = false;
         })
         .catch((err) => {
@@ -420,10 +435,7 @@ export default {
     },
 
     async fetchAllQueueList() {
-      return await this.$store.dispatch(
-        "counter/getAllQueueList",
-        localStorage.role
-      );
+      return await this.$store.dispatch("counter/getAllQueueList", localStorage.role);
     },
 
     getQueueNum() {
@@ -498,14 +510,26 @@ export default {
 
     async getQueueReports() {
       await this.$store.dispatch("reports/getAllQueue").then((res) => {
-        console.log(res.data);
+        // console.log(res.data);
       });
+    },
+
+    loadQueueTbl() {
+      this.fetchAllQueueList().then((res) => {
+        this.queues = res.data.slice().reverse();
+      });
+    },
+
+    setQueueTblBg(item, type) {
+      if (!item || type !== "row") return;
+      if (item.status === "PENDING") return "table-primary";
+      if (item.status === "DONE") return "table-secondary";
+      if (item.status === "ONGOING") return "table-success";
+      if (item.status === "HOLD") return "table-dark";
     },
   },
 
-  mounted() {
-    this.fetchQueueByStatus("ONGOING");
-  },
+  mounted() {},
 
   beforeCreate() {
     let codes = this.$store.state.counter.windCodes.filter(function (val) {
@@ -524,10 +548,15 @@ export default {
 
   beforeDestroy() {
     clearInterval(this.roleCheckInterval);
+    clearInterval(this.interval);
   },
 
   created() {
     this.getQueueReports();
+    this.fetchQueueByStatus("ONGOING");
+    this.interval = setInterval(() => {
+      this.loadQueueTbl();
+    }, 1000);
   },
 
   computed: {
@@ -566,7 +595,7 @@ export default {
   display: flex;
   &__main {
     height: 100vh;
-    width: 70vw;
+    width: 100%;
     &__text {
       text-align: center;
       margin-top: 40px;
@@ -581,35 +610,72 @@ export default {
     }
   }
 
+  .queueTbl {
+    border: 1px solid rgb(165, 165, 165);
+    height: 1000px !important;
+    margin-left: 30vh;
+    margin-right: 30vh;
+  }
+
   &__actions {
-    width: 30vw;
+    width: 30%;
     padding: 50px 30px;
     border-left: 3px outset forestgreen;
     &__btn {
       width: 100%;
-      font-size: 32px;
+      font-size: 25px;
       margin-bottom: 10px;
       border: 0;
-      padding: 3vh 0;
+      padding: 1.5vh 0;
+    }
+  }
+}
+
+@media only screen and (max-width: 1280px) {
+  .tbl_pending {
+    &__th {
+      border: 1px solid rgb(255, 255, 255);
+      padding: 10px 10px 10px 10px;
+      font-size: 18px;
+      background: #28a745;
+      color: white;
+      text-align: center;
+    }
+    &__td {
+      border: 1px solid black;
     }
   }
 }
 
 .icn {
-  font-size: 40px;
+  font-size: 25px;
 }
 
 @media only screen and (max-width: 1280px) {
   .counter_container {
+    &__main {
+      &__text {
+        margin-top: 30px;
+        &__num {
+          font-size: 60px;
+          font-weight: bold;
+          margin-left: 30vh;
+          margin-right: 30vh;
+          border: 5px solid forestgreen;
+          border-radius: 10px;
+        }
+      }
+    }
+
     &__actions {
       &__btn {
-        font-size: 20px;
+        font-size: 16px;
       }
     }
   }
 
   .icn {
-    font-size: 20px;
+    font-size: 16px;
   }
 }
 
@@ -623,12 +689,32 @@ export default {
     width: 60px;
     height: 60px;
   }
+
+  &__txt {
+    font-size: 14px;
+  }
 }
 
+@media only screen and (max-width: 1280px) {
+  .logo {
+    &__img {
+      width: 40px;
+      height: 40px;
+    }
+
+    &__txt {
+      font-size: 8px;
+    }
+  }
+}
 .btn-print {
   position: absolute;
   left: 100px;
   bottom: 20px;
-  padding: 20px;
+  padding: 10px;
+}
+
+.f18 {
+  font-size: 18px;
 }
 </style>
