@@ -1,13 +1,13 @@
 <template>
   <div>
     <div class="text-center">
-      <h5>
+      <h3>
         PHILIPPINE CROP INSURANCE CORPORATION <br />
         Queue Management System <br />
         <sub
           >FOR THE PERIOD OF <b>{{ dateFrom }}</b> TO <b>{{ dateTo }}</b>
         </sub>
-      </h5>
+      </h3>
     </div>
 
     <br />

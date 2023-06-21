@@ -43,17 +43,16 @@ export default {
   },
 
   server: {
-    port: 7501,
-    // host: "0.0.0.0",
+    port: process.env.PORT,
+    host: process.env.HOST,
   },
 
   axios: {
-    // baseUrl: "http://172.16.28.163:5100",
-    // baseUrl: "http://172.16.28.15:5100",
-    baseUrl: "http://localhost:5100",
+    baseUrl: process.env.BASE_URL,
   },
+
   env: {
-    DATE_EXP: "6/24/2023",
-    VERSION: "vBeta"
+    DATE_EXP: process.env.DATE_EXP,
+    VERSION: process.env.VERSION
   },
 };
