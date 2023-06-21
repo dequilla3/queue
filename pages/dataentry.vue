@@ -560,9 +560,7 @@ export default {
         this.setArEntries();
       });
     },
-    getRoundOff(num) {
-      return (Math.round(num * 100) / 100).toFixed(2);
-    },
+
     showAlert(message, variant) {
       this.alert = {
         showAlert: 5,
@@ -722,15 +720,13 @@ export default {
 
       //init transline
       let trans_line = [];
-      this.newReceiptSelectedProd.forEach(
-        function (val) {
-          trans_line.push({
-            product_id: val.prodId,
-            quantity: 1,
-            amount: val.amount,
-          });
-        }.bind(this)
-      );
+      this.newReceiptSelectedProd.forEach(function (val) {
+        trans_line.push({
+          product_id: val.prodId,
+          quantity: 1,
+          amount: val.amount,
+        });
+      });
 
       if (this.action == "NEW") {
         this.saveNewReceipt(trans_header, trans_line);
@@ -1114,11 +1110,9 @@ export default {
 
     getTotalAmount() {
       let total = 0;
-      this.newReceiptSelectedProd.forEach(
-        function (val) {
-          total += Number(val.amount);
-        }.bind(this)
-      );
+      this.newReceiptSelectedProd.forEach(function (val) {
+        total += Number(val.amount);
+      });
       return total;
     },
 

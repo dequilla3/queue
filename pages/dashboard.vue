@@ -188,41 +188,34 @@ export default {
 
         /**
          * CONDITION:
-         *    - IF new queue number is not equal current queue number
-         *      and IF new queue number is not equal to 0 wil play the audio
+         *    - IF new queue number is not equal current queue number and IF new queue number is not equal to 0 wil play the audio
          */
         if (newQnum != val.qNum) {
           val.qNum = newQnum;
-          this.splashQueueNum(val);
+          if (newQnum != 0) this.splashQueueNum(val, 6);
           this.playSound(newQnum);
-          setTimeout(() => {
-            val.class = "";
-          }, 100);
         }
       });
     },
 
-    splashQueueNum(val) {
-      val.class = "queueColor";
-      setTimeout(() => {
-        val.class = "";
-      }, 100);
+    splashQueueNum(val, blinkCount) {
+      //init timeout mili secs
+      let timeOutMS = 0;
+      //init count of blink. Blink count will be blinkCount / 2
+      blinkCount *= 2;
+      // loop 12 times and it will blink 6 times
+      for (let i = 0; i < blinkCount; i++) {
+        // increase timeout ms to blink every loop
+        timeOutMS += 400;
 
-      setTimeout(() => {
-        val.class = "queueColor";
-      }, 300);
-
-      setTimeout(() => {
-        val.class = "";
-      }, 500);
-
-      setTimeout(() => {
-        val.class = "queueColor";
-      }, 700);
-
-      setTimeout(() => {
-        val.class = "";
-      }, 900);
+        setTimeout(() => {
+          /**
+           * set and unset css class every loop to make it blink
+           * thats why 12 loops equivalent to 6 blinks
+           */
+          val.class = val.class == "" ? "queueColor" : "";
+        }, timeOutMS);
+      }
     },
 
     async playSound(newQnum) {

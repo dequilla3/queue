@@ -4,12 +4,7 @@
       <timeBomb />
       <sidebar />
       <div class="counter_container dontPrint">
-        <b-button
-          @click="$bvModal.show('reportParam')"
-          class="btn-print"
-          pill
-          variant="primary"
-        >
+        <b-button @click="onPrintQueueReport()" class="btn-print" pill variant="primary">
           <font-awesome-icon style="font-size: 16px" icon="fa-solid fa-print"
         /></b-button>
         <div class="counter_container__main">
@@ -135,7 +130,7 @@
           </template>
         </b-modal>
 
-        <b-modal id="reportParam">
+        <b-modal id="reportParam" title="Queue Report Parameter">
           <label for="dateFrom">Date From:</label>
           <b-form-datepicker
             class="mr-1 mb-1"
@@ -166,11 +161,15 @@
                 variant="primary"
                 size="sm"
                 class="float-right"
-                @click="show = false"
+                @click="printQueueReport()"
               >
                 <font-awesome-icon icon="fa-solid fa-print" /> Print
               </b-button>
-              <b-button size="sm" class="float-right mr-1" @click="show = false">
+              <b-button
+                size="sm"
+                class="float-right mr-1"
+                @click="$bvModal.hide('reportParam')"
+              >
                 Cancel
               </b-button>
             </div>
@@ -193,26 +192,36 @@
       </div>
     </div>
     <!-- ticket  -->
-    <queueTicket class="print" />
+    <queueTicket v-if="isPrintTicket" class="print" />
+    <queueReport
+      v-if="isPrintReport"
+      class="print"
+      :queueReportDetails="queueReportDetails"
+      :dateFrom="dateFrom.toLocaleDateString()"
+      :dateTo="dateTo.toLocaleDateString()"
+    />
   </div>
 </template>
 <script>
 import queueTicket from "../components/Report/queueTicket.vue";
+import queueReport from "../components/Report/queueReport.vue";
 import logout from "../components/logout.vue";
 import sidebar from "../components/sidebar.vue";
 import axios from "axios";
 import moment from "moment";
 
-const audio = new Audio("attention.mp3");
-
 export default {
   components: {
     queueTicket,
+    queueReport,
     logout,
     sidebar,
   },
   data() {
     return {
+      isPrintReport: false,
+      isPrintTicket: false,
+
       perPage: 10,
       queues: [],
       queueTblFields: [
@@ -221,8 +230,8 @@ export default {
         { key: "gender", label: "Gender" },
       ],
 
-      dateFrom: "",
-      dateTo: "",
+      dateFrom: new Date(),
+      dateTo: new Date(),
 
       donePost: true,
       lblSearch: "",
@@ -247,6 +256,16 @@ export default {
         { key: "date_queue", label: "Date Queued" },
         { key: "action", label: "Action" },
       ],
+
+      windowCodeList: [
+        { key: "w1", counter: "WINDOW 1" },
+        { key: "w2", counter: "WINDOW 2" },
+        { key: "w3", counter: "WINDOW 3" },
+        { key: "w4", counter: "WINDOW 4" },
+        { key: "w5", counter: "WINDOW 5" },
+      ],
+
+      queueReportDetails: [],
     };
   },
 
@@ -310,25 +329,24 @@ export default {
 
     async onNext() {
       await this.fetchAllQueueList().then(() => {
-        if (this.getQueueByStatus("PENDING").length > 0) {
-          this.showOverlayNext = true;
-          if (this.ongoing < 1) {
-            //if without ongoing transaction then post ongoing only
-            this.postOngoing();
-          } else {
-            /**
-             * PROCEDURE:
-             *  update ongoing to done then;
-             *  update latest pending to ongoing
-             */
-            this.postByStatus("DONE", "ONGOING").then(() => {
-              this.postOngoing();
-            });
-
-            this.showOverlayNext = false;
-          }
-        } else {
+        if (this.getQueueByStatus("PENDING").length == 0) {
           this.showAlert("No PENDING queue.", "danger");
+        }
+        this.showOverlayNext = true;
+        if (this.ongoing < 1) {
+          //if without ongoing transaction then post ongoing only
+          this.postOngoing();
+        } else {
+          /**
+           * PROCEDURE:
+           *  update ongoing to done then;
+           *  update latest pending to ongoing
+           */
+          this.postByStatus("DONE", "ONGOING").then(() => {
+            this.postOngoing();
+          });
+
+          this.showOverlayNext = false;
         }
       });
     },
@@ -495,6 +513,9 @@ export default {
           });
           /*TRIGGER PRINT AFTEREACH*/
           this.$nextTick(() => {
+            this.isPrintReport = false;
+            this.isPrintTicket = true;
+
             this.showOverlayNext = false;
             this.$bvModal.hide("held_modal");
 
@@ -508,9 +529,88 @@ export default {
         });
     },
 
-    async getQueueReports() {
-      await this.$store.dispatch("reports/getAllQueue").then((res) => {
-        // console.log(res.data);
+    fetchReportQueues() {
+      return this.$store.dispatch("reports/getAllQueue");
+    },
+
+    isBetweenDates(val) {
+      if (this.dateFrom != "" && this.dateTo != "") {
+        const dateFrom = new Date(new Date(this.dateFrom).toLocaleDateString()).getTime();
+        const dateTo = new Date(new Date(this.dateTo).toLocaleDateString()).getTime();
+        const dateTrans = new Date(val.date_queue).getTime();
+        return dateTrans >= dateFrom && dateTrans <= dateTo;
+      }
+
+      return true;
+    },
+
+    setQueueReportDetails() {
+      this.queueReportDetails = [];
+      this.windowCodeList.forEach(
+        function (val) {
+          let windowData = this.getReportQueues.filter(
+            function (rptQueue) {
+              return (
+                rptQueue.window_num == val.key &&
+                rptQueue.status == "DONE" &&
+                this.isBetweenDates(rptQueue)
+              );
+            }.bind(this)
+          );
+
+          let windTotalMale = windowData.filter(function (totalMale) {
+            return totalMale.gender == "MALE";
+          }).length;
+
+          let windTotalFeMale = windowData.filter(function (totalMale) {
+            return totalMale.gender == "FEMALE";
+          }).length;
+
+          this.queueReportDetails.push({
+            key: val.key,
+            counter: val.counter,
+            totalNum: windowData.length,
+            totalMale: windTotalMale,
+            totalFemale: windTotalFeMale,
+          });
+        }.bind(this)
+      );
+
+      let grandTotalNum = 0;
+      let grandTotalNumMale = 0;
+      let grandTotalNumFemale = 0;
+      this.queueReportDetails.forEach(function (val) {
+        grandTotalNum += val.totalNum;
+        grandTotalNumMale += val.totalMale;
+        grandTotalNumFemale += val.totalFemale;
+      });
+
+      this.$nextTick(() => {
+        this.queueReportDetails.push({
+          key: "total",
+          counter: "GRAND TOTAL",
+          totalNum: grandTotalNum,
+          totalMale: grandTotalNumMale,
+          totalFemale: grandTotalNumFemale,
+        });
+      });
+    },
+
+    onPrintQueueReport() {
+      this.$bvModal.show("reportParam");
+    },
+
+    printQueueReport() {
+      this.fetchReportQueues().then(() => {
+        this.setQueueReportDetails();
+        this.isPrintReport = true;
+        this.isPrintTicket = false;
+
+        this.$bvModal.hide("reportParam");
+
+        setTimeout(() => {
+          window.print();
+        }, 1000);
       });
     },
 
@@ -552,14 +652,17 @@ export default {
   },
 
   created() {
-    this.getQueueReports();
+    this.fetchReportQueues();
     this.fetchQueueByStatus("ONGOING");
     this.interval = setInterval(() => {
       this.loadQueueTbl();
-    }, 1000);
+    }, 3000);
   },
 
   computed: {
+    getReportQueues() {
+      return this.$store.state.reports.allQueue;
+    },
     getRole() {
       return localStorage.role ? localStorage.role : "";
     },
