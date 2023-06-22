@@ -50,7 +50,8 @@ export default {
 .ticket {
   max-width: 200px;
   padding: 0px;
-  margin: 20px;
+  margin: 20px 40px;
+  scale: 120%;
 }
 
 .ticket__header {

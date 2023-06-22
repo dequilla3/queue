@@ -4,9 +4,10 @@
       <h3>
         PHILIPPINE CROP INSURANCE CORPORATION <br />
         Queue Management System <br />
-        <sub
-          >FOR THE PERIOD OF <b>{{ dateFrom }}</b> TO <b>{{ dateTo }}</b>
-        </sub>
+        <sub>
+          FOR THE PERIOD OF {{ new Date(dateFrom).toLocaleDateString() }} TO
+          {{ new Date(dateTo).toLocaleDateString() }}</sub
+        >
       </h3>
     </div>
 
@@ -45,8 +46,8 @@
 export default {
   props: {
     queueReportDetails: Array,
-    dateFrom: String,
-    dateTo: String,
+    dateFrom: Date,
+    dateTo: Date,
   },
 
   mounted() {},
@@ -59,6 +60,9 @@ export default {
 };
 </script>
 <style scoped>
+body {
+  scale: 140%;
+}
 table {
   width: 100%;
 }
@@ -73,5 +77,9 @@ td {
   border: 1px solid black;
   text-align: center;
   padding: 3px;
+}
+
+@page {
+  margin: 0;
 }
 </style>

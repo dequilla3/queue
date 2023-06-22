@@ -1,12 +1,21 @@
 <template>
   <div>
-    <h5 class="text-center">
+    <h3 class="text-center">
       PHILIPPINE CROP INSURANCE CORPORATION <br />
       ACKNOWLEDGEMENT MANAGEMENT SYSTEM REPORT <br />
-      <sub
-        >FOR THE PERIOD OF <b>{{ dateFrom }}</b> TO <b>{{ dateTo }}</b>
-      </sub>
-    </h5>
+      <div v-if="dateFrom != '' && dateTo != ''">
+        <h3>
+          <sub>FOR THE PERIOD OF</sub>
+          <sub class="font-weight-bold">
+            {{ dateFrom }}
+          </sub>
+          <sub>TO</sub>
+          <sub class="font-weight-bold">
+            {{ dateTo }}
+          </sub>
+        </h3>
+      </div>
+    </h3>
     <br />
     <table>
       <caption></caption>
@@ -14,24 +23,30 @@
         <th class="">Date Transaction</th>
         <th>Series No.</th>
         <th>Payor Name</th>
-        <th>Amount</th>
         <th>CASH</th>
         <th>CHECK</th>
         <th>Drawee Bank</th>
         <th>Number</th>
         <th>Date Check</th>
+        <th>Amount</th>
       </tr>
 
       <tr v-for="(item, index) in transactions" :key="index">
         <td>{{ item.dateTrans }}</td>
         <td>{{ item.arNo }}</td>
         <td>{{ item.payorName }}</td>
-        <td>&#8369; {{ numberWithCommas(getRoundOff(item.amt)) }}</td>
         <td>{{ item.pmtType == "CASH" ? "CASH" : "" }}</td>
         <td>{{ item.pmtType == "CHECK" ? "CHECK" : "" }}</td>
         <td>{{ item.drawee }}</td>
         <td>{{ item.checkNo }}</td>
         <td>{{ item.dateCheck }}</td>
+        <td>&#8369; {{ numberWithCommas(getRoundOff(item.amt)) }}</td>
+      </tr>
+      <tr>
+        <td class="font-weight-bold" colspan="8">GRAND TOTAL</td>
+        <td class="font-weight-bold">
+          &#8369; {{ numberWithCommas(getRoundOff(getTotalAmount)) }}
+        </td>
       </tr>
     </table>
   </div>
@@ -51,6 +66,16 @@ export default {
     getRoundOff(num) {
       num = Number(num);
       return (Math.round(num * 100) / 100).toFixed(2);
+    },
+  },
+
+  computed: {
+    getTotalAmount() {
+      let totalAmt = 0;
+      this.transactions.forEach(function (val) {
+        totalAmt += Number(val.amt);
+      });
+      return totalAmt;
     },
   },
 };

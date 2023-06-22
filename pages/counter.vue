@@ -26,6 +26,7 @@
               :items="queues"
               :fields="queueTblFields"
               :tbody-tr-class="setQueueTblBg"
+              head-variant="light"
             >
             </b-table>
           </div>
@@ -197,8 +198,8 @@
       v-if="isPrintReport"
       class="print"
       :queueReportDetails="queueReportDetails"
-      :dateFrom="dateFrom.toLocaleDateString()"
-      :dateTo="dateTo.toLocaleDateString()"
+      :dateFrom="dateFrom"
+      :dateTo="dateTo"
     />
   </div>
 </template>
@@ -636,12 +637,10 @@ export default {
       return localStorage.role == val.wNum;
     });
     if (codes.length < 1) this.$router.push({ path: "/" });
-
     this.roleCheckInterval = setInterval(() => {
       let codes = this.$store.state.counter.windCodes.filter(function (val) {
         return localStorage.role == val.wNum;
       });
-
       if (codes.length < 1) this.$router.push({ path: "/" });
     }, 5000);
   },

@@ -1,10 +1,10 @@
 <template>
   <div>
-    <!-- <arReport
+    <arReport
       :transactions="transactions"
       dateFrom="June 1, 2023"
       dateTo="June 5, 2023"
-    /> -->
+    />
     <queueReport
       :queueReportDetails="queueReportDetails"
       dateFrom="June 1, 2023"

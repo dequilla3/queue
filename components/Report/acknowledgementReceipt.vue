@@ -183,7 +183,6 @@ export default {
 }
 
 .report {
-  margin: 0.5in 45px 24px 55px;
   border: 1px solid #000000;
 }
 
@@ -317,5 +316,9 @@ th {
 
 .color-transparent {
   color: transparent;
+}
+
+@page {
+  margin: 0.4in 53px 24px 53px;
 }
 </style>

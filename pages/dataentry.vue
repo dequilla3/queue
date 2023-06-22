@@ -52,15 +52,16 @@
             :date-format-options="{ year: 'numeric', month: 'numeric', day: 'numeric' }"
           />
           <b-button
+            variant="primary"
             title="Filter transaction list"
             @click="onFilter()"
             class="mr-1"
-            variant="info"
           >
             <font-awesome-icon :icon="['fas', 'filter']" />
           </b-button>
 
           <b-button
+            variant="secondary"
             class="mr-1"
             title="Reset filter parameter"
             @click="resetFilterParams()"
@@ -69,11 +70,22 @@
           </b-button>
 
           <b-button
+            variant="info"
+            class="mr-1"
             @click="onPrintReport()"
             v-if="selectedStatus == 'pr'"
             title="Print report"
           >
             <font-awesome-icon :icon="['fas', 'print']" />
+          </b-button>
+
+          <b-button
+            variant="success"
+            @click="exportToExcel()"
+            v-if="selectedStatus == 'pr'"
+            title="Export to excel"
+          >
+            <font-awesome-icon :icon="['fas', 'file-excel']" />
           </b-button>
         </div>
 
@@ -142,6 +154,17 @@
             >
               <font-awesome-icon :icon="['fas', 'pen-to-square']" />
             </b-button>
+
+            <b-button
+              class="mb-1 rounded-circle shadow"
+              variant="warning"
+              v-if="row.item.docstatus == 'PR'"
+              title="Override Transaction"
+              size="sm"
+              @click="openTransModal('OVR', row.item.id)"
+            >
+              <font-awesome-icon :icon="['fas', 'repeat']" />
+            </b-button>
           </template>
         </b-table>
 
@@ -193,10 +216,14 @@
                 ></b-form-input>
               </b-form-group>
 
-              <b-form-group id="date-check" label="Date:" label-for="input-dateTrans">
+              <b-form-group
+                id="date-trans"
+                label="Date Transaction:"
+                label-for="input-dateTrans"
+              >
                 <b-form-datepicker
                   required
-                  id="date-check"
+                  id="date-trans"
                   v-model="transModalForm.dateTrans"
                   :disabled="isActionView"
                 ></b-form-datepicker>
@@ -241,7 +268,7 @@
                   ></b-form-input>
                 </b-form-group>
 
-                <label for="date-check">Date:</label>
+                <label for="date-check">Date Check:</label>
                 <b-form-datepicker
                   id="date-check"
                   v-model="transModalForm.dateCheck"
@@ -280,7 +307,7 @@
 
               <template #cell(action)="row">
                 <b-button
-                  @click="removeSelectedProduct(row.item)"
+                  @click="removeSelectedProduct(row.index)"
                   title="Remove product from the list"
                   variant="danger"
                   size="sm"
@@ -365,6 +392,44 @@
         </template>
       </b-modal>
 
+      <b-modal hide-footer id="ovrTransModal" title="Override Transaction" size="small">
+        <b-form @submit="userLoginOvr" class="ovrModal__form">
+          <b-form-group id="usernameGroup" label="Username:" label-for="userNameInput">
+            <b-form-input
+              id="userNameInput"
+              v-model="ovrData.userName"
+              type="text"
+              placeholder="Enter username"
+              required
+            ></b-form-input>
+          </b-form-group>
+
+          <b-form-group
+            id="passwordGroup"
+            label="Password:"
+            label-for="passwordInput"
+            description="We'll never share your password with anyone else."
+          >
+            <b-form-input
+              id="passwordInput"
+              v-model="ovrData.password"
+              type="password"
+              placeholder="********"
+              required
+            ></b-form-input>
+          </b-form-group>
+
+          <b-button
+            :disabled="isLoadingOvr"
+            class="ovrModal__btn"
+            type="submit"
+            variant="danger"
+          >
+            Override
+          </b-button>
+        </b-form>
+      </b-modal>
+
       <b-alert
         :show="alert.showAlert"
         dismissible
@@ -409,6 +474,8 @@ import sidebar from "../components/sidebar.vue";
 import axios from "axios";
 import acknowledgementReceipt from "../components/Report/acknowledgementReceipt.vue";
 import arReport from "../components/Report/arReport.vue";
+import Papa from "papaparse";
+import moment from "moment";
 
 export default {
   components: {
@@ -419,6 +486,14 @@ export default {
 
   data() {
     return {
+      isLoadingOvr: false,
+      ovrData: {
+        userName: "",
+        password: "",
+      },
+
+      isAuthenticatedOvr: false,
+
       transactionsReport: [],
       isPrintReport: false,
       isPrintReceipt: false,
@@ -514,6 +589,46 @@ export default {
   },
 
   methods: {
+    exportToExcel() {
+      let values = [];
+      this.fetchAllTransaction().then(() => {
+        this.setArEntries();
+        this.$nextTick(() => {
+          this.arEntries.forEach(function (val) {
+            values.push({
+              "Date Transaction": val.dateTrans,
+              "Series No.": val.docnum,
+              "Payor Name": val.payor,
+              "Payment Type": val.transType,
+              "Drawee Bank": val.bank,
+              Number: val.checkNo,
+              "Date Check": val.checkDate,
+              Amount: val.totalAmt,
+            });
+          });
+
+          const csv = Papa.unparse(values);
+          const fileURL = window.URL.createObjectURL(new Blob([csv]));
+          let fileLink = document.createElement("a");
+
+          fileLink.href = fileURL;
+
+          const fromToDate = `FROM: ${
+            this.dateFrom ? moment(this.dateFrom).format("MMM DD, YYYY") : ""
+          } TO: ${this.dateTo ? moment(this.dateTo).format("MMM DD, YYYY") : ""}`;
+
+          fileLink.setAttribute(
+            "download",
+            `Acknowledgement Receipt ${
+              this.dateFrom && this.dateTo ? fromToDate : ""
+            }.csv`
+          );
+          document.body.appendChild(fileLink);
+          fileLink.click();
+        });
+      });
+    },
+
     numberWithCommas(x) {
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     },
@@ -522,30 +637,32 @@ export default {
       return (Math.round(num * 100) / 100).toFixed(2);
     },
     onPrintReport() {
-      this.isPrintReceipt = false;
-      this.isPrintReport = true;
-      this.$bvModal.hide("transModal");
-
-      this.transactionsReport = [];
-
-      this.arEntries.forEach(
-        function (val) {
-          this.transactionsReport.push({
-            dateTrans: val.dateTrans,
-            arNo: val.docnum,
-            payorName: val.payor,
-            amt: val.totalAmt,
-            pmtType: val.transType,
-            drawee: val.bank,
-            checkNo: val.checkNo,
-            dateCheck: val.checkDate,
-          });
-        }.bind(this)
-      );
-
-      setTimeout(() => {
-        window.print();
-      }, 1000);
+      this.fetchAllTransaction().then(() => {
+        this.setArEntries();
+        this.$nextTick(() => {
+          this.$bvModal.hide("transModal");
+          this.isPrintReceipt = false;
+          this.isPrintReport = true;
+          this.transactionsReport = [];
+          this.arEntries.forEach(
+            function (val) {
+              this.transactionsReport.push({
+                dateTrans: val.dateTrans,
+                arNo: val.docnum,
+                payorName: val.payor,
+                amt: val.totalAmt,
+                pmtType: val.transType,
+                drawee: val.bank,
+                checkNo: val.checkNo,
+                dateCheck: val.checkDate,
+              });
+            }.bind(this)
+          );
+          setTimeout(() => {
+            window.print();
+          }, 1000);
+        });
+      });
     },
     resetFilterParams() {
       this.inpSrchEntries = "";
@@ -555,6 +672,7 @@ export default {
       this.selectedPmtType = "";
       this.onFilter();
     },
+
     onFilter() {
       this.fetchAllTransaction().then(() => {
         this.setArEntries();
@@ -604,6 +722,9 @@ export default {
         case "UPDATE":
           this.onUpdateTrans(id);
           break;
+        case "OVR":
+          this.ovrTransaction(id);
+          break;
       }
     },
 
@@ -625,8 +746,15 @@ export default {
       this.setTransModalFormLineById(id);
     },
 
+    ovrTransaction(id) {
+      this.transModalTitle = "OVERRIDE TRANSACTION DETAILS";
+      this.setTransModalFormByTransId(id);
+      this.setTransModalFormLineById(id);
+    },
+
     setTransModalFormByTransId(id) {
       const item = this.getTransHeadById(id);
+      console.log(item.transaction_date);
       this.transModalForm = {
         seriesNo: item.transaction_code,
         payorName: item.payor,
@@ -638,9 +766,7 @@ export default {
         draweeBank: item.bank_code ? item.bank_code : "",
         number: item.check_no,
         dateCheck: item.check_date,
-        dateTrans: item.transaction_date
-          ? new Date(item.transaction_date).toLocaleDateString()
-          : "",
+        dateTrans: item.transaction_date ? new Date(item.transaction_date) : "",
       };
     },
 
@@ -683,8 +809,8 @@ export default {
       this.setProductList();
     },
 
-    removeSelectedProduct(item) {
-      this.newReceiptSelectedProd.splice(item, 1);
+    removeSelectedProduct(index) {
+      this.newReceiptSelectedProd.splice(index, 1);
       this.setProductList();
     },
 
@@ -701,21 +827,26 @@ export default {
     },
 
     onSaveReceipt() {
-      if (!this.isLoading) this.doSaveDraftReceipt();
+      if (this.action == "OVR") {
+        this.$bvModal.show("ovrTransModal");
+      } else {
+        if (!this.isLoading) this.doSaveReceipt();
+      }
     },
 
-    doSaveDraftReceipt() {
+    doSaveReceipt() {
       this.isLoading = true;
+      const pmtType = this.transModalForm.selectedPaymentType;
       //init header
       const trans_header = {
         payor: this.transModalForm.payorName.toUpperCase(),
         amount: this.getTotalAmount,
-        payment_type: this.transModalForm.selectedPaymentType,
-        check_no: this.transModalForm.number.toUpperCase(),
+        payment_type: pmtType,
+        check_no: pmtType == "CHECK" ? this.transModalForm.number.toUpperCase() : "",
         transaction_date: this.transModalForm.dateTrans,
         user_id: localStorage.user_id,
-        check_date: this.transModalForm.dateCheck,
-        bank_code: this.transModalForm.draweeBank,
+        check_date: pmtType == "CHECK" ? this.transModalForm.dateCheck : null,
+        bank_code: pmtType == "CHECK" ? this.transModalForm.draweeBank : "",
       };
 
       //init transline
@@ -732,6 +863,8 @@ export default {
         this.saveNewReceipt(trans_header, trans_line);
       } else if (this.action == "UPDATE") {
         this.updateReceipt(trans_header, trans_line);
+      } else if (this.action == "OVR") {
+        this.overrideTransaction(trans_header, trans_line);
       }
     },
 
@@ -855,6 +988,39 @@ export default {
       );
     },
 
+    async overrideTransaction(trans_header, trans_line) {
+      //set seriesno and status to given object
+      trans_header.transaction_id = this.selectedTransId;
+      trans_header.transaction_code = this.transModalForm.seriesNo;
+      trans_header.transaction_status = "PR";
+
+      console.log(trans_line);
+
+      // save here
+      await axios({
+        method: "POST",
+        url: `${this.$axios.defaults.baseURL}/transaction/overrideTransaction`,
+        data: {
+          trans_header,
+          trans_line,
+        },
+      }).then(
+        (res) => {
+          this.isLoading = false;
+          this.showAlert("Successfully overriden transaction.", "success");
+          this.$bvModal.hide("transModal");
+          this.$bvModal.hide("ovrTransModal");
+          this.fetchAllTransaction().then(() => {
+            this.setArEntries();
+          });
+        },
+        (err) => {
+          this.showAlert(err.response ? err.response.data.errorMsg : err, "danger");
+          this.isLoading = false;
+        }
+      );
+    },
+
     async fetchAllTransaction() {
       return this.$store.dispatch("dataentry/getAllTransaction");
     },
@@ -901,7 +1067,11 @@ export default {
       this.arEntries = arr.filter(
         function (val) {
           return (
-            val.payor.toLowerCase().includes(this.inpSrchEntries.toLowerCase()) &&
+            (val.collectingOfficer
+              .toLowerCase()
+              .includes(this.inpSrchEntries.toLowerCase()) ||
+              val.docnum.toLowerCase().includes(this.inpSrchEntries.toLowerCase()) ||
+              val.payor.toLowerCase().includes(this.inpSrchEntries.toLowerCase())) &&
             val.docstatus.toLowerCase().includes(this.selectedStatus.toLowerCase()) &&
             val.transType.toLowerCase().includes(this.selectedPmtType.toLowerCase()) &&
             this.isArEntriesBetweenDates(val)
@@ -1080,6 +1250,46 @@ export default {
         this.$bvModal.show("insertProdModal");
       });
     },
+
+    async userLoginOvr(e) {
+      e.preventDefault();
+
+      this.isLoadingOvr = true;
+
+      await axios({
+        method: "POST",
+        url: `${this.$axios.defaults.baseURL}/user/authenticate`,
+        data: {
+          username: this.ovrData.userName,
+          user_password: this.ovrData.password,
+        },
+      }).then(
+        (res) => {
+          const results = res.data.result.results;
+          if (results.user_role == "admin") {
+            this.resetDataOvrTrans();
+            this.doSaveReceipt();
+          } else {
+            this.resetDataOvrTrans();
+            this.showAlert("Override transaction is for admin access only.", "danger");
+          }
+        },
+        (err) => {
+          this.resetDataOvrTrans();
+          if (err.response) {
+            this.showAlert(err.response.data.errorMsg, "danger");
+          } else {
+            this.showAlert(err, "danger");
+          }
+        }
+      );
+    },
+
+    resetDataOvrTrans() {
+      this.isLoadingOvr = false;
+      this.ovrData.userName = "";
+      this.ovrData.password = "";
+    },
   },
 
   created() {
@@ -1091,7 +1301,21 @@ export default {
     });
   },
 
-  beforeDestroy() {},
+  beforeDestroy() {
+    clearInterval(this.roleCheckInterval);
+  },
+  beforeCreate() {
+    let codes = this.$store.state.counter.windCodes.filter(function (val) {
+      return localStorage.role == val.wNum;
+    });
+    if (codes.length < 1) this.$router.push({ path: "/" });
+    this.roleCheckInterval = setInterval(() => {
+      let codes = this.$store.state.counter.windCodes.filter(function (val) {
+        return localStorage.role == val.wNum;
+      });
+      if (codes.length < 1) this.$router.push({ path: "/" });
+    }, 5000);
+  },
 
   computed: {
     isActionView() {
@@ -1201,6 +1425,16 @@ export default {
     margin: 20px;
     padding: 20px;
     box-shadow: $boxShadow;
+  }
+}
+
+.ovrModal {
+  &__form {
+    padding: 20px 70px 70px 70px;
+  }
+
+  &__btn {
+    width: 100%;
   }
 }
 
