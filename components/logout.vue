@@ -38,8 +38,11 @@ export default {
             this.$router.push({ path: "/" });
             //clear storage  except dashboard running text
             const runText = localStorage.runningText;
+            const fileUrl = localStorage.fileURL;
+
             localStorage.clear();
             localStorage.runningText = runText;
+            localStorage.fileURL = fileUrl;
           }
         })
         .catch((err) => {
@@ -54,7 +57,7 @@ export default {
 <style lang="scss" scoped>
 .logout {
   position: absolute;
-  font-size: 30px;
+  font-size: 18px;
   transform: rotate(180deg);
   z-index: 1000;
   cursor: pointer;
@@ -90,5 +93,10 @@ export default {
 }
 .top-1 {
   top: 1%;
+}
+@media only screen and (max-width: 1500px) {
+  .logout {
+    font-size: 14px;
+  }
 }
 </style>

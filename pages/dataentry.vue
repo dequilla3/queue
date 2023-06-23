@@ -283,7 +283,7 @@
               class="mb-1"
               variant="primary"
               size="sm"
-              v-if="isActionUpdate || isActionView ? false : true"
+              v-if="isActionView ? false : true"
             >
               <font-awesome-icon :icon="['fas', 'arrow-down']" />
               Insert Product

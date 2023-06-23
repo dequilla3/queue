@@ -1,11 +1,17 @@
 <template>
   <div>
     <logout mode="light" pos="left" />
+    <input
+      class="uploadBtn"
+      type="file"
+      accept="video/*"
+      @change="handleFileUpload($event)"
+    />
     <timeBomb />
     <div class="dashboard">
       <div class="dashboard__content">
         <div class="dashboard__vid">
-          <video loop autoplay muted>
+          <video id="video-preview" loop autoplay muted controls>
             <track
               label="English"
               kind="subtitles"
@@ -45,12 +51,11 @@
         </div>
       </div>
       <div class="bottom_section" @dblclick="editRunningText">
-        <div class="marquee">
-          <p>{{ runningText }}</p>
-        </div>
-
         <div class="bottom_section__time">
           {{ dateNow.toString().toUpperCase() }}
+        </div>
+        <div class="marquee">
+          <p>{{ runningText }}</p>
         </div>
       </div>
 
@@ -98,6 +103,7 @@ export default {
   },
   data() {
     return {
+      file: [],
       sound: new Howl({
         src: ["attention.mp3"],
       }),
@@ -153,6 +159,16 @@ export default {
   },
 
   methods: {
+    previewVideo() {
+      let video = document.getElementById("video-preview");
+      const fileURL = URL.createObjectURL(this.file);
+      video.src = fileURL;
+      localStorage.fileURL = fileURL;
+    },
+    handleFileUpload(event) {
+      this.file = event.target.files[0];
+      this.previewVideo();
+    },
     editRunningText() {
       this.$bvModal.show("edit_runningtext_modal");
     },
@@ -241,6 +257,9 @@ export default {
   },
 
   mounted() {
+    let video = document.getElementById("video-preview");
+    video.src = localStorage.fileURL;
+
     this.$bvModal.show("popUp");
 
     this.intervalOngoing = setInterval(() => {
@@ -264,6 +283,7 @@ export default {
 * {
   font-family: Arial, Helvetica, sans-serif;
 }
+
 video {
   object-fit: fill;
   width: 100%;
@@ -291,11 +311,14 @@ video {
 
 .dashboard {
   display: block;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+
   background: rgb(0, 153, 0);
   &__content {
     display: flex;
-    height: 92vh;
-    width: 100vw;
+    height: 95vh;
   }
   &__vid {
     background: gray;
@@ -304,12 +327,12 @@ video {
   }
   &__queue {
     &__logo {
+      position: absolute;
       display: flex;
-      height: 9.5vh;
-      width: 30vw;
+      height: 9vh;
+      width: 30.5vw;
       padding: 10px;
       margin-top: 5px;
-      margin-right: 5px;
       color: white;
       background: rgb(0, 116, 0);
       &__title {
@@ -324,8 +347,8 @@ video {
 table {
   background: rgb(0, 79, 0);
   width: 30vw;
-  height: 81.5vh;
-  margin-right: 5px;
+  height: 93.5vh;
+  margin: 5px 5px 5px 0px;
 }
 
 th {
@@ -349,18 +372,9 @@ td {
   text-shadow: 4px 4px 6px rgba(0, 0, 0, 0.5);
 }
 
-@media only screen and (max-width: 1280px) {
-  td {
-    padding: 0 10px;
-  }
-  .td--window {
-    font-size: 30px;
-  }
-}
-
 .td--queue_number {
   color: #ff342a;
-  font-size: 70px;
+  font-size: 72px;
   font-weight: bolder;
   letter-spacing: 0.1em;
   text-shadow: 4px 4px 6px rgba(0, 0, 0, 0.5);
@@ -371,12 +385,6 @@ td {
   text-shadow: 6px -1px 50px rgba(255, 0, 0, 1);
 }
 
-@media only screen and (min-width: 1920px) {
-  .td--queue_number {
-    font-size: 100px;
-  }
-}
-
 .bottom_section {
   width: 100%;
   font-size: 20px;
@@ -384,26 +392,70 @@ td {
   background: green;
   color: white;
   text-align: center;
-  height: 8vh;
   display: flex;
 
   &__time {
-    background: white;
     text-align: center;
-    margin-top: 5px;
-    margin-bottom: 5px;
-    margin-right: 5px;
-    width: 43.1vw;
-    color: rgb(0, 0, 0);
-    font-size: 30px;
-    padding-top: 10px;
+    color: black;
+    font-size: 15px;
+    background: white;
+    padding-top: 5px;
+
+    width: 30vw;
+    margin: 0px 5px 5px 5px;
   }
 }
 
-@media only screen and (max-width: 1280px) {
+.uploadBtn {
+  position: absolute;
+  z-index: 1000;
+  top: 1.8%;
+  left: 4%;
+  color: white;
+  cursor: pointer;
+  width: 150px;
+  opacity: 0.2;
+  font-size: 8px;
+
+  &:hover {
+    opacity: 0.5;
+  }
+}
+
+@media only screen and (max-width: 1500px) {
+  td {
+    padding: 0 10px;
+  }
+  .td--window {
+    font-size: 28px;
+  }
+}
+
+@media only screen and (min-width: 1920px) {
+  .dashboard {
+    &__queue {
+      &__logo {
+        width: 30vw;
+      }
+    }
+  }
+  .td--window {
+    font-size: 40px;
+  }
+  .td--queue_number {
+    font-size: 110px;
+  }
+  th {
+    font-size: 40px;
+  }
+
+  table {
+    height: 94vh;
+  }
+
   .bottom_section {
     &__time {
-      font-size: 18px;
+      font-size: 22px;
       padding-top: 10px;
     }
   }
