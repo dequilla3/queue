@@ -259,6 +259,11 @@ export default {
   mounted() {
     let video = document.getElementById("video-preview");
     video.src = localStorage.fileURL;
+    setTimeout(() => {
+      if (video.currentTime == 0) {
+        video.src = "vid1.mp4";
+      }
+    }, 1000);
 
     this.$bvModal.show("popUp");
 
