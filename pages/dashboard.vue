@@ -402,7 +402,7 @@ td {
   &__time {
     text-align: center;
     color: black;
-    font-size: 15px;
+    font-size: 22px;
     background: white;
     padding-top: 5px;
 

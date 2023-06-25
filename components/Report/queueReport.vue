@@ -79,7 +79,7 @@ td {
   padding: 3px;
 }
 
-@page {
+/* @page {
   margin: 0;
-}
+} */
 </style>

@@ -318,7 +318,7 @@ th {
   color: transparent;
 }
 
-@page {
+/* @page {
   margin: 0.4in 53px 24px 53px;
-}
+} */
 </style>

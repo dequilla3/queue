@@ -187,7 +187,7 @@ export default {
           windowCode: "P",
           transactions: [
             {
-              headText: "PWD / SENIOR CITEZEN / PREGNANT",
+              headText: "PWD / SENIOR CITIZEN / PREGNANT",
               subText: "MAY KAPANSANAN / MATATANDA / BUNTIS",
               transCode: "t1",
             },
