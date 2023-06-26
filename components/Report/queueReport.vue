@@ -78,8 +78,4 @@ td {
   text-align: center;
   padding: 3px;
 }
-
-/* @page {
-  margin: 0;
-} */
 </style>

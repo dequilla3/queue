@@ -4,9 +4,25 @@
       <timeBomb />
       <sidebar />
       <div class="counter_container dontPrint">
-        <b-button @click="onPrintQueueReport()" class="btn-print" pill variant="primary">
+        <b-button
+          title="Print Queue Data per date period"
+          @click="onPrintQueueReport()"
+          class="btn-print"
+          pill
+          variant="primary"
+        >
           <font-awesome-icon style="font-size: 16px" icon="fa-solid fa-print"
         /></b-button>
+
+        <b-button
+          title="Export all queue data"
+          @click="exportQueueReport()"
+          class="btn-export"
+          pill
+          variant="success"
+        >
+          <font-awesome-icon style="font-size: 16px" :icon="['fas', 'file-excel']" />
+        </b-button>
         <div class="counter_container__main">
           <div class="counter_container__main__text">
             <b class="f18">{{ getWindDesc }}</b>
@@ -210,6 +226,8 @@ import logout from "../components/logout.vue";
 import sidebar from "../components/sidebar.vue";
 import axios from "axios";
 import moment from "moment";
+import * as Excel from "exceljs/dist/exceljs.min.js";
+import * as FileSaver from "file-saver";
 
 export default {
   components: {
@@ -271,6 +289,74 @@ export default {
   },
 
   methods: {
+    exportQueueReport() {
+      const fileName = `Queue Management System`;
+      const wb = new Excel.Workbook();
+      const ws = wb.addWorksheet("Main Sheet");
+
+      ws.mergeCells("A1:D1");
+
+      //set col width
+      const colWidth = 30;
+      ws.columns = [
+        { width: colWidth },
+        { width: colWidth },
+        { width: colWidth },
+        { width: colWidth },
+      ];
+
+      //set header
+      const cellA1 = ws.getCell("A1");
+      ws.getRow(1).height = 60;
+      cellA1.font = {
+        name: "Arial Narrow",
+        size: 16,
+        underline: false,
+        bold: true,
+      };
+
+      cellA1.value = `PHILIPPINE CROP INSURANCE CORPORATION \n Queue Management System Report`;
+      cellA1.alignment = {
+        vertical: "top",
+        horizontal: "center",
+        wrapText: true,
+      };
+
+      //set col header values
+      const row2 = ws.getRow(2);
+      row2.height = 30;
+      row2.font = { name: "Arial Narrow", size: 13, bold: true };
+      row2.alignment = { vertical: "middle", horizontal: "center" };
+      row2.values = ["Counter", "Male", "Female", "Total Number Client"];
+
+      //set data asynchronously
+      this.$nextTick(() => {
+        //fetch and set details first
+        this.setQueueReportDetails(true);
+        //then
+        this.$nextTick(() => {
+          let xIndex = 0;
+          this.queueReportDetails.forEach(function (val, index) {
+            xIndex = index + 3;
+            const rows = ws.getRow(xIndex);
+            rows.font = { name: "Arial Narrow", size: 12, bold: false };
+            rows.values = [val.counter, val.totalNum, val.totalMale, val.totalFemale];
+          });
+
+          //set grandtotal fontstyle
+          ws.getRow(8).font = { name: "Arial Narrow", size: 13, bold: true };
+
+          //lastly do export file
+          const blobType =
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
+          wb.xlsx.writeBuffer().then((data) => {
+            const blob = new Blob([data], { type: blobType });
+            FileSaver.saveAs(blob, fileName);
+          });
+        });
+      });
+    },
+
     filteredHold() {
       return this.hold.filter(
         function (val) {
@@ -545,7 +631,7 @@ export default {
       return true;
     },
 
-    setQueueReportDetails() {
+    setQueueReportDetails(isExport) {
       this.queueReportDetails = [];
       this.windowCodeList.forEach(
         function (val) {
@@ -554,7 +640,7 @@ export default {
               return (
                 rptQueue.window_num == val.key &&
                 rptQueue.status == "DONE" &&
-                this.isBetweenDates(rptQueue)
+                (isExport ? true : this.isBetweenDates(rptQueue))
               );
             }.bind(this)
           );
@@ -814,6 +900,13 @@ export default {
   left: 100px;
   bottom: 20px;
   padding: 10px;
+}
+
+.btn-export {
+  position: absolute;
+  left: 150px;
+  bottom: 20px;
+  padding: 10px 12px;
 }
 
 .f18 {

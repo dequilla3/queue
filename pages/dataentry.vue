@@ -474,8 +474,8 @@ import sidebar from "../components/sidebar.vue";
 import axios from "axios";
 import acknowledgementReceipt from "../components/Report/acknowledgementReceipt.vue";
 import arReport from "../components/Report/arReport.vue";
-import Papa from "papaparse";
-import moment from "moment";
+import * as Excel from "exceljs/dist/exceljs.min.js";
+import * as FileSaver from "file-saver";
 
 export default {
   components: {
@@ -538,7 +538,7 @@ export default {
         { key: "action", label: "Actions" },
       ],
 
-      selectedStatus: "dr",
+      selectedStatus: "pr",
       optionStatus: [
         { value: "", text: "ALL" },
         { value: "dr", text: "DR" },
@@ -589,43 +589,129 @@ export default {
   },
 
   methods: {
+    doExportFIle() {
+      const fileName = `Acknowledgement Receipt ${
+        this.dateFrom != "" && this.dateTo != ""
+          ? "_" + this.dateFrom + "_" + this.dateTo
+          : ""
+      }`;
+
+      const wb = new Excel.Workbook();
+      const ws = wb.addWorksheet("Main Sheet");
+
+      //merge cell from A1 to I1
+      ws.mergeCells("A1:I1");
+
+      //set col width
+      ws.columns = [
+        { width: 25 },
+        { width: 25 },
+        { width: 25 },
+        { width: 25 },
+        { width: 25 },
+        { width: 25 },
+        { width: 25 },
+        { width: 25 },
+        { width: 25 },
+      ];
+
+      //set header
+      const cellA1 = ws.getCell("A1");
+      ws.getRow(1).height = 80;
+      cellA1.font = {
+        name: "Arial Narrow",
+        size: 16,
+        underline: false,
+        bold: true,
+      };
+
+      const datePeriod =
+        this.dateFrom != "" && this.dateTo != ""
+          ? `FOR THE PERIOD OF ${this.dateFrom} TO ${this.dateTo}`
+          : "";
+
+      cellA1.value = `PHILIPPINE CROP INSURANCE CORPORATION \n ACKNOWLEDGEMENT MANAGEMENT SYSTEM REPORT \n ${datePeriod}`;
+
+      cellA1.alignment = {
+        vertical: "top",
+        horizontal: "center",
+        wrapText: true,
+      };
+
+      //set col header values
+      const row2 = ws.getRow(2);
+      row2.height = 30;
+      row2.font = { name: "Arial Narrow", size: 13, bold: true };
+      row2.alignment = { vertical: "middle", horizontal: "center" };
+      row2.values = [
+        "Date Transaction",
+        "Series No.",
+        "Payor Name",
+        "CASH",
+        "CHECK",
+        "Drawee Bank",
+        "Number",
+        "Date Check",
+        "Amount",
+      ];
+
+      // set data
+      let xIndex = 0;
+      this.arEntries.forEach(function (val, index) {
+        let cashTransType = val.transType == "CASH" ? "CASH" : "";
+        let checkTransType = val.transType == "CHECK" ? "CHECK" : "";
+
+        xIndex = index + 3;
+        const rows = ws.getRow(xIndex);
+
+        rows.font = { name: "Arial Narrow", size: 12, bold: false };
+        rows.values = [
+          val.dateTrans,
+          val.docnum,
+          val.payor,
+          cashTransType,
+          checkTransType,
+          val.bank,
+          val.checkNo,
+          val.checkDate,
+          Number(val.totalAmt),
+        ];
+      });
+
+      //data total amount
+      const cellAIndex = `A${xIndex + 1}`;
+      const cellIIndex = `I${xIndex + 1}`;
+
+      ws.getCell(cellAIndex).value = "GRAND TOTAL";
+      ws.getCell(cellIIndex).value = this.getTotalAmtArEntries;
+
+      ws.getCell(cellAIndex).font = {
+        name: "Arial Narrow",
+        size: 14,
+        underline: false,
+        bold: true,
+      };
+      ws.getCell(cellIIndex).font = {
+        name: "Arial Narrow",
+        size: 13,
+        underline: false,
+        bold: true,
+      };
+      ws.mergeCells(`A${xIndex + 1}:H${xIndex + 1}`);
+
+      //do export file
+      const blobType =
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
+      wb.xlsx.writeBuffer().then((data) => {
+        const blob = new Blob([data], { type: blobType });
+        FileSaver.saveAs(blob, fileName);
+      });
+    },
+
     exportToExcel() {
-      let values = [];
       this.fetchAllTransaction().then(() => {
         this.setArEntries();
-        this.$nextTick(() => {
-          this.arEntries.forEach(function (val) {
-            values.push({
-              "Date Transaction": val.dateTrans,
-              "Series No.": val.docnum,
-              "Payor Name": val.payor,
-              "Payment Type": val.transType,
-              "Drawee Bank": val.bank,
-              Number: val.checkNo,
-              "Date Check": val.checkDate,
-              Amount: val.totalAmt,
-            });
-          });
-
-          const csv = Papa.unparse(values);
-          const fileURL = window.URL.createObjectURL(new Blob([csv]));
-          let fileLink = document.createElement("a");
-
-          fileLink.href = fileURL;
-
-          const fromToDate = `FROM: ${
-            this.dateFrom ? moment(this.dateFrom).format("MMM DD, YYYY") : ""
-          } TO: ${this.dateTo ? moment(this.dateTo).format("MMM DD, YYYY") : ""}`;
-
-          fileLink.setAttribute(
-            "download",
-            `Acknowledgement Receipt ${
-              this.dateFrom && this.dateTo ? fromToDate : ""
-            }.csv`
-          );
-          document.body.appendChild(fileLink);
-          fileLink.click();
-        });
+        this.doExportFIle();
       });
     },
 
@@ -1365,6 +1451,14 @@ export default {
       return this.getAllUsers.filter(function (val) {
         return val.user_id == localStorage.user_id;
       });
+    },
+
+    getTotalAmtArEntries() {
+      let totalAmt = 0;
+      this.arEntries.forEach(function (val) {
+        totalAmt += Number(val.totalAmt);
+      });
+      return totalAmt;
     },
   },
 };
