@@ -293,6 +293,7 @@ export default {
       const fileName = `Queue Management System`;
       const wb = new Excel.Workbook();
       const ws = wb.addWorksheet("Main Sheet");
+      const cols = ["A", "B", "C", "D"];
 
       ws.mergeCells("A1:D1");
 
@@ -329,6 +330,16 @@ export default {
       row2.alignment = { vertical: "middle", horizontal: "center" };
       row2.values = ["Counter", "Male", "Female", "Total Number Client"];
 
+      //set border table header
+      for (let col of cols) {
+        ws.getCell(`${col}2`).border = {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" },
+        };
+      }
+
       //set data asynchronously
       this.$nextTick(() => {
         //fetch and set details first
@@ -340,7 +351,17 @@ export default {
             xIndex = index + 3;
             const rows = ws.getRow(xIndex);
             rows.font = { name: "Arial Narrow", size: 12, bold: false };
-            rows.values = [val.counter, val.totalNum, val.totalMale, val.totalFemale];
+            rows.values = [val.counter, val.totalMale, val.totalFemale, val.totalNum];
+
+            //set border on table data
+            for (let col of cols) {
+              ws.getCell(`${col}${xIndex}`).border = {
+                top: { style: "thin" },
+                left: { style: "thin" },
+                bottom: { style: "thin" },
+                right: { style: "thin" },
+              };
+            }
           });
 
           //set grandtotal fontstyle

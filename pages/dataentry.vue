@@ -598,6 +598,7 @@ export default {
 
       const wb = new Excel.Workbook();
       const ws = wb.addWorksheet("Main Sheet");
+      const cols = ["A", "B", "C", "D", "E", "F", "G", "H", "I"];
 
       //merge cell from A1 to I1
       ws.mergeCells("A1:I1");
@@ -655,6 +656,16 @@ export default {
         "Amount",
       ];
 
+      //set table header border
+      for (let col of cols) {
+        ws.getCell(`${col}2`).border = {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" },
+        };
+      }
+
       // set data
       let xIndex = 0;
       this.arEntries.forEach(function (val, index) {
@@ -676,11 +687,31 @@ export default {
           val.checkDate,
           Number(val.totalAmt),
         ];
+
+        //set boder on table data
+        for (let col of cols) {
+          ws.getCell(`${col}${xIndex}`).border = {
+            top: { style: "thin" },
+            left: { style: "thin" },
+            bottom: { style: "thin" },
+            right: { style: "thin" },
+          };
+        }
       });
 
       //data total amount
       const cellAIndex = `A${xIndex + 1}`;
       const cellIIndex = `I${xIndex + 1}`;
+
+      //set total amount border
+      for (let col of cols) {
+        ws.getCell(`${col}${xIndex + 1}`).border = {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" },
+        };
+      }
 
       ws.getCell(cellAIndex).value = "GRAND TOTAL";
       ws.getCell(cellIIndex).value = this.getTotalAmtArEntries;
