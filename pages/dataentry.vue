@@ -476,6 +476,7 @@ import acknowledgementReceipt from "../components/Report/acknowledgementReceipt.
 import arReport from "../components/Report/arReport.vue";
 import * as Excel from "exceljs/dist/exceljs.min.js";
 import * as FileSaver from "file-saver";
+import moment from "moment";
 
 export default {
   components: {
@@ -960,7 +961,7 @@ export default {
         amount: this.getTotalAmount,
         payment_type: pmtType,
         check_no: pmtType == "CHECK" ? this.transModalForm.number.toUpperCase() : "",
-        transaction_date: this.transModalForm.dateTrans,
+        transaction_date: moment(this.transModalForm.dateTrans).format("llll"),
         user_id: localStorage.user_id,
         check_date: pmtType == "CHECK" ? this.transModalForm.dateCheck : null,
         bank_code: pmtType == "CHECK" ? this.transModalForm.draweeBank : "",
@@ -1299,7 +1300,9 @@ export default {
             ? new Date(item.check_date).toLocaleDateString()
             : "",
           dateTrans: item.transaction_date
-            ? new Date(item.transaction_date).toLocaleDateString()
+            ? `${moment(item.transaction_date).format("L")} ${moment(
+                item.transaction_date
+              ).format("LT")}`
             : "",
         };
 
