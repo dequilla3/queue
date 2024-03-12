@@ -1,69 +1,52 @@
-# queue
+# Queueing & Data Entry Application
 
-## Build Setup
+This is a web-based application developed using Vue.js. It serves as a tool for managing queues and capturing data entries simultaneously.
 
-```bash
-# install dependencies
-$ npm install
+## Features
 
-# serve with hot reload at localhost:3000
-$ npm run dev
+- **Queue Management**: Allows users to join a queue and be served based on their position.
+- **Data Entry Forms**: Provides forms for users to input data entries while waiting in the queue.
+- **Real-time Updates**: Updates queue status and data entries in real-time without the need for page refresh.
+- **Customizable Queues**: Supports the creation of multiple queues with customizable settings such as priority levels and queue capacities.
+- **Responsive Design**: Built with responsive design principles to ensure usability across various devices.
 
-# build for production and launch server
-$ npm run build
-$ npm run start
+## Installation
 
-# generate static project
-$ npm run generate
-```
+1. Clone the repository from GitHub:
+2. Navigate to the project directory:
 
-For detailed explanation on how things work, check out the [documentation](https://nuxtjs.org).
-
-## Special Directories
-
-You can create the following extra directories, some of which have special behaviors. Only `pages` is required; you can delete them if you don't want to use their functionality.
-
-### `assets`
-
-The assets directory contains your uncompiled assets such as Stylus or Sass files, images, or fonts.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/assets).
-
-### `components`
-
-The components directory contains your Vue.js components. Components make up the different parts of your page and can be reused and imported into your pages, layouts and even other components.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/components).
-
-### `layouts`
-
-Layouts are a great help when you want to change the look and feel of your Nuxt app, whether you want to include a sidebar or have distinct layouts for mobile and desktop.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/layouts).
+3. Install dependencies:
 
 
-### `pages`
+4. Start the development server:
 
-This directory contains your application views and routes. Nuxt will read all the `*.vue` files inside this directory and setup Vue Router automatically.
 
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/get-started/routing).
+5. Access the application through your web browser at `http://localhost:8080`.
 
-### `plugins`
+## Usage
 
-The plugins directory contains JavaScript plugins that you want to run before instantiating the root Vue.js Application. This is the place to add Vue plugins and to inject functions or constants. Every time you need to use `Vue.use()`, you should create a file in `plugins/` and add its path to plugins in `nuxt.config.js`.
+- **Joining a Queue**: Users can join a queue by selecting the desired queue from the available options.
+- **Data Entry**: Users can fill out data entry forms while waiting in the queue.
+- **Queue Monitoring**: Users can monitor their position in the queue and estimated wait times.
+- **Admin Dashboard**: Administrators have access to a dashboard to manage queues, view statistics, and configure application settings.
 
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/plugins).
+## Technologies Used
 
-### `static`
+- **Vue.js**: JavaScript framework for building user interfaces.
+- **Vuex**: State management library for Vue.js applications.
+- **Vue Router**: Official router for Vue.js applications.
+- **Axios**: Promise-based HTTP client for making AJAX requests.
+- **Bootstrap (or any other CSS framework)**: For styling and responsive layout.
 
-This directory contains your static files. Each file inside this directory is mapped to `/`.
+## Contributing
 
-Example: `/static/robots.txt` is mapped as `/robots.txt`.
+Contributions are welcome! If you'd like to contribute to the project, please fork the repository and submit a pull request with your changes.
 
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/static).
 
-### `store`
 
-This directory contains your Vuex store files. Creating a file in this directory automatically activates Vuex.
 
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/store).
+## Contact
+
+For any inquiries or support, please contact deqkim4@gmail.com.
+
+Thank you for using the Queueing & Data Entry Application!
