@@ -51,7 +51,7 @@ export default {
           code: "entry",
           icon: "receipt",
           title: "Acknowledgement Receipt",
-          show: localStorage.role == "w5",
+          show: localStorage.role == "w4",
         },
         {
           id: 3,

@@ -1,45 +1,39 @@
-import axios from 'axios';
+import axios from "axios";
 
 export default {
   state() {
     return {
-
       queue: [],
 
       windCodes: [
         {
-          wNum: 'w1',
-          wCode: 'M',
-          desc: 'WINDOW 1'
+          wNum: "w1",
+          wCode: "M",
+          desc: "WINDOW 1",
         },
         {
-          wNum: 'w2',
-          wCode: 'C',
-          desc: 'WINDOW 2'
+          wNum: "w2",
+          wCode: "C",
+          desc: "WINDOW 2",
         },
         {
-          wNum: 'w3',
-          wCode: 'P',
-          desc: 'WINDOW 3'
+          wNum: "w3",
+          wCode: "A",
+          desc: "WINDOW 3",
         },
         {
-          wNum: 'w4',
-          wCode: 'A',
-          desc: 'WINDOW 4',
+          wNum: "w4",
+          wCode: "T",
+          desc: "WINDOW 4",
         },
-        {
-          wNum: 'w5',
-          wCode: 'T',
-          desc: 'WINDOW 5'
-        },
-      ]
+      ],
     };
   },
 
   mutations: {
     SET_QUEUE_LIST(state, data) {
       state.queue = data;
-    }
+    },
   },
 
   actions: {
@@ -50,15 +44,22 @@ export default {
         data: {
           winNum: role,
           newStatus: "",
-          oldStatus: ""
+          oldStatus: "",
         },
-      }).then(res => {
-        commit("SET_QUEUE_LIST", res.data);
-        return res;
-      }).catch(err => { console.log(err); });
+      })
+        .then((res) => {
+          commit("SET_QUEUE_LIST", res.data);
+          return res;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
 
-    async postQueuesByStatus({ commit }, { role, newStatus, oldStatus, queueId }) {
+    async postQueuesByStatus(
+      { commit },
+      { role, newStatus, oldStatus, queueId }
+    ) {
       await axios({
         method: "POST",
         url: `${this.$axios.defaults.baseURL}/queuing/listQueuNum/${queueId}`,
@@ -67,10 +68,9 @@ export default {
           newStatus: newStatus,
           oldStatus: oldStatus,
         },
-      })
-        .then((res) => {
-          commit("SET_QUEUE_LIST", res.data);
-        });
-    }
-  }
+      }).then((res) => {
+        commit("SET_QUEUE_LIST", res.data);
+      });
+    },
+  },
 };

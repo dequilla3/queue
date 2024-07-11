@@ -146,14 +146,6 @@ export default {
           wCode: "w4",
           class: "",
         },
-        {
-          windowId: 5,
-          windowDesc: "WINDOW 5",
-          tCode: "T",
-          qNum: 0,
-          wCode: "w5",
-          class: "",
-        },
       ],
     };
   },

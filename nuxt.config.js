@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   ssr: false,
@@ -54,6 +54,6 @@ export default {
 
   env: {
     DATE_EXP: process.env.DATE_EXP,
-    VERSION: process.env.VERSION
+    VERSION: process.env.VERSION,
   },
 };

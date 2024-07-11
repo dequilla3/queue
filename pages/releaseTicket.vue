@@ -180,23 +180,9 @@ export default {
             },
           ],
         },
-
         {
           desc: "WINDOW 3",
           winNum: "w3",
-          windowCode: "P",
-          transactions: [
-            {
-              headText: "PWD / SENIOR CITIZEN / PREGNANT",
-              subText: "MAY KAPANSANAN / MATATANDA / BUNTIS",
-              transCode: "t1",
-            },
-          ],
-        },
-
-        {
-          desc: "WINDOW 4",
-          winNum: "w4",
           windowCode: "A",
           transactions: [
             {

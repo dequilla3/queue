@@ -102,7 +102,7 @@
               v-show="getRole == 'w1'"
               class="counter_container__actions__btn bg-default"
             >
-              Queue Window 5
+              Queue Window 4
             </b-button>
           </b-overlay>
         </div>
@@ -606,7 +606,7 @@ export default {
         method: "POST",
         url: `${this.$axios.defaults.baseURL}/queuing/generateQueueNum`,
         data: {
-          winNum: "w5",
+          winNum: "w4",
           transType: "t1",
           date_queue: moment().format(),
           gender: this.ongoing.gender,
@@ -617,7 +617,7 @@ export default {
           this.$store.commit("queueticket/SET_REPORTSTATE", {
             curNum: res.data[0] ? res.data[0].queue_num : 0,
             windowCode: "T",
-            windowDesc: "WINDOW 5",
+            windowDesc: "WINDOW 4",
           });
           /*TRIGGER PRINT AFTEREACH*/
           this.$nextTick(() => {

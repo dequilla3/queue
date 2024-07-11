@@ -1,3 +1,24 @@
 {
-  "vue3snippets.enable-compile-vue-file-on-did-save-code": false
+  "vue3snippets.enable-compile-vue-file-on-did-save-code": false,
+  "cSpell.words": [
+    "AFTEREACH",
+    "axios",
+    "confpw",
+    "dataentry",
+    "dont",
+    "exceljs",
+    "fontawesome",
+    "fortawesome",
+    "newpw",
+    "nuxt",
+    "nuxtjs",
+    "officedocument",
+    "openxmlformats",
+    "PAGTATANONG",
+    "PCIC",
+    "queueticket",
+    "releaseticket",
+    "REPORTSTATE",
+    "spreadsheetml"
+  ]
 }

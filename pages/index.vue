@@ -4,7 +4,7 @@
       <timeBomb />
       <p class="login__header-text mb-5">
         <img src="../assets/img/logo.png" class="logo" alt="" />
-        PCIC XI Systems <br />
+        PCIC XI <br />
         <i
           ><sub>{{ version }}</sub></i
         >
@@ -33,7 +33,10 @@
           :disabled="isLoading"
         >
           Login
-          <font-awesome-icon icon="fa-solid fa-arrow-right" v-show="!isLoading" />
+          <font-awesome-icon
+            icon="fa-solid fa-arrow-right"
+            v-show="!isLoading"
+          />
           <b-spinner small v-show="isLoading" />
         </b-button>
       </b-form>
@@ -57,7 +60,11 @@
         </template>
 
         <b-form @submit="updatePassword">
-          <b-form-group id="input-newpw" label="Password:" label-for="input-newpw">
+          <b-form-group
+            id="input-newpw"
+            label="Password:"
+            label-for="input-newpw"
+          >
             <b-form-input
               id="input-newpw"
               v-model="newPw"
@@ -158,7 +165,7 @@ export default {
       e.preventDefault();
 
       this.isLoading = true;
-
+      console.log(this.$axios.defaults.baseUR);
       await axios({
         method: "POST",
         url: `${this.$axios.defaults.baseURL}/user/authenticate`,
@@ -168,6 +175,7 @@ export default {
         },
       }).then(
         (res) => {
+          console.log(res);
           const results = res.data.result.results;
 
           if (results.username == results.user_password) {
@@ -203,7 +211,11 @@ export default {
             break;
 
           case "dashboard":
-            this.$router.push({ path: "/dashboard" });
+            if (screen.height >= 4000) {
+              this.$router.push({ path: "/dashboard-portrait" });
+            } else {
+              this.$router.push({ path: "/dashboard" });
+            }
             break;
 
           case "admin":
@@ -314,6 +326,43 @@ $y: 10%;
     margin-right: 10%;
     &__btn {
       width: 100%;
+    }
+  }
+}
+
+@media only screen and (min-height: 4608px) {
+  .logo {
+    width: 200px;
+    height: 200px;
+  }
+  input {
+    font-size: 80px;
+  }
+  button {
+    font-size: 80px;
+  }
+
+  .login {
+    background: white;
+    z-index: 1;
+    padding: 60px 60px 150px 60px;
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-top: $y;
+
+    box-shadow: 0px 0px 115px -25px rgba(0, 0, 0, 0.46);
+    -webkit-box-shadow: 0px 0px 115px -25px rgba(0, 0, 0, 0.46);
+    -moz-box-shadow: 0px 0px 115px -25px rgba(0, 0, 0, 0.46);
+    &__header-text {
+      font-size: 100px;
+      text-align: center;
+    }
+    &__form {
+      margin-left: 5%;
+      margin-right: 5%;
+      &__btn {
+        width: 100%;
+      }
     }
   }
 }
