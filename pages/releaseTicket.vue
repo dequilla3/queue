@@ -183,17 +183,12 @@ export default {
         {
           desc: "WINDOW 3",
           winNum: "w3",
-          windowCode: "A",
+          windowCode: "P",
           transactions: [
             {
-              headText: "CLAIM INDEMNITY CHECK",
-              subText: "PAGKUHA NG BAYAD PINSALA",
+              headText: "PWD / SENIOR CITIZEN / PREGNANT",
+              subText: "MAY KAPANSANAN / MATATANDA / BUNTIS",
               transCode: "t1",
-            },
-            {
-              headText: "INQUIRY CHECK AVAILABILITY",
-              subText: "PAGTATANONG KUNG MAYROONG TSEKE",
-              transCode: "t2",
             },
           ],
         },

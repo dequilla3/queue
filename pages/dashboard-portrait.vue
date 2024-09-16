@@ -131,7 +131,7 @@ export default {
         {
           windowId: 4,
           windowDesc: "WINDOW 4",
-          tCode: "A",
+          tCode: "T",
           qNum: 0,
           wCode: "w4",
           class: "",
