@@ -1,12 +1,13 @@
 <template>
   <div class="">
-    <!-- <logout mode="light" pos="left" />
+    <!-- <logout mode="light" pos="left" /> -->
     <input
+      id="fileInput"
       class="uploadBtn"
       type="file"
       accept="video/*"
       @change="handleFileUpload($event)"
-    /> -->
+    />
     <div class="bg-success-dark d-flex p-40 w-full">
       <img :src="logo" class="mr-5" alt="" style="width: 200px; height: auto" />
       <div class="header">PHILIPPINE CROP INSURANCE CORPORATION REGION XI</div>
@@ -43,12 +44,31 @@
       Your browser does not support the video tag.
     </video>
 
-    <div class="bg-success-dark footer">
+    <div id="dashboard_footer" class="bg-success-dark footer">
       <div class="date">{{ dateNow.toString().toUpperCase() }}</div>
-      <!-- <div class="marquee">
-        <p>{{ runningText }}</p>
-      </div> -->
+      <marquee class="fs-8 text-light">{{ runningText }}</marquee>
     </div>
+
+    <b-modal id="edit_runningtext_modal" ref="modal" size="huge" hide-footer>
+      <div class="fs-8 mb-5">Edit running text</div>
+
+      <textarea
+        id="message"
+        name="message"
+        rows="4"
+        cols="50"
+        v-model="tempRunningText"
+        placeholder="Enter something..."
+      ></textarea
+      ><br /><br />
+      <b-button
+        @click="handleOk"
+        pill
+        class="popUp--btn float-right"
+        variant="success"
+        >Okay</b-button
+      >
+    </b-modal>
 
     <b-modal id="popUp" hide-footer no-close-on-esc size="xl">
       <div class="text-center align-content-center p-100px">
@@ -121,6 +141,22 @@ export default {
   },
 
   methods: {
+    handleKeyDown(event) {
+      if (event.ctrlKey && event.altKey && event.key === "p") {
+        // Get the file input element by ID
+        const fileInput = document.getElementById("fileInput");
+        if (fileInput) {
+          // Trigger a click event on the file input
+          fileInput.click();
+        }
+      }
+      if (event.ctrlKey && event.altKey && event.key === "e") {
+        const footer = document.getElementById("dashboard_footer");
+        if (footer) {
+          this.editRunningText();
+        }
+      }
+    },
     previewVideo() {
       let video = document.getElementById("video-preview");
       const fileURL = URL.createObjectURL(this.file);
@@ -207,20 +243,17 @@ export default {
     },
   },
 
-  beforeCreate() {
-    if (localStorage.role != "dashboard") this.$router.push({ path: "/" });
-    this.roleCheckInterval = setInterval(() => {
-      if (localStorage.role != "dashboard") this.$router.push({ path: "/" });
-    }, 5000);
-  },
+  beforeCreate() {},
 
   beforeDestroy() {
+    window.removeEventListener("keydown", this.handleKeyDown);
     clearInterval(this.timeInterval);
     clearInterval(this.intervalOngoing);
     clearInterval(this.roleCheckInterval);
   },
 
   mounted() {
+    window.addEventListener("keydown", this.handleKeyDown);
     let video = document.getElementById("video-preview");
     video.src = localStorage.fileURL;
 
@@ -250,6 +283,18 @@ export default {
 </script>
 
 <style>
+textarea {
+  width: 100%;
+  font-size: 80px;
+}
+.flex {
+  display: flex;
+}
+.uploadBtn {
+  font-size: 1px;
+  position: absolute;
+  opacity: 0;
+}
 body {
   background-color: green;
   overflow: hidden;
@@ -337,16 +382,22 @@ td {
 }
 
 .date {
+  position: absolute;
   background-color: whitesmoke;
-  font-size: 80px;
+  font-size: 65px;
   padding: 10px 20px;
   border-radius: 20px;
   font-weight: bold;
+  z-index: 100;
+}
+
+.fs-8 {
+  font-size: 80px;
 }
 
 video {
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 50vh;
   box-shadow: -1px 14px 38px -6px rgba(0, 0, 0, 0.36);
   -webkit-box-shadow: -1px 14px 38px -6px rgba(0, 0, 0, 0.36);
   -moz-box-shadow: -1px 14px 38px -6px rgba(0, 0, 0, 0.36);
