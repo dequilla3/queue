@@ -211,11 +211,8 @@ export default {
             break;
 
           case "dashboard":
-            if (screen.height >= 4000) {
-              this.$router.push({ path: "/dashboard-portrait" });
-            } else {
-              this.$router.push({ path: "/dashboard" });
-            }
+            this.$router.push({ path: "/dashboard-portrait" });
+
             break;
 
           case "admin":
